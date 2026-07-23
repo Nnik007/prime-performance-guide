@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, RotateCcw, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CheckCircle2, RotateCcw, Sparkles, LineChart, Scale, Ruler, Trash2 } from "lucide-react";
 
 const HABITS = [
   { id: "train", label: "Completed today's training / rest as planned", cat: "Training" },
@@ -30,9 +32,22 @@ function todayKey() {
   return `forge-habits-${new Date().toISOString().slice(0, 10)}`;
 }
 
+const MEASURES_KEY = "forge-measures";
+type Measure = { week: string; weight: string; waist: string };
+
+function currentWeekKey() {
+  const d = new Date();
+  const day = (d.getDay() + 6) % 7; // Mon=0
+  d.setDate(d.getDate() - day);
+  return d.toISOString().slice(0, 10);
+}
+
 export function HabitTracker() {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [tipIdx, setTipIdx] = useState(0);
+  const [measures, setMeasures] = useState<Measure[]>([]);
+  const [weightInput, setWeightInput] = useState("");
+  const [waistInput, setWaistInput] = useState("");
 
   useEffect(() => {
     try {
@@ -50,6 +65,48 @@ export function HabitTracker() {
       /* ignore */
     }
   }, [checked]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(MEASURES_KEY);
+      if (raw) setMeasures(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(MEASURES_KEY, JSON.stringify(measures));
+    } catch {
+      /* ignore */
+    }
+  }, [measures]);
+
+  const saveMeasure = () => {
+    if (!weightInput && !waistInput) return;
+    const week = currentWeekKey();
+    setMeasures((prev) => {
+      const others = prev.filter((m) => m.week !== week);
+      return [...others, { week, weight: weightInput, waist: waistInput }].sort((a, b) =>
+        a.week.localeCompare(b.week),
+      );
+    });
+    setWeightInput("");
+    setWaistInput("");
+  };
+
+  const sortedMeasures = [...measures].sort((a, b) => b.week.localeCompare(a.week));
+  const latest = sortedMeasures[0];
+  const prev = sortedMeasures[1];
+  const weightDelta =
+    latest && prev && latest.weight && prev.weight
+      ? Number(latest.weight) - Number(prev.weight)
+      : null;
+  const waistDelta =
+    latest && prev && latest.waist && prev.waist
+      ? Number(latest.waist) - Number(prev.waist)
+      : null;
 
   const completed = Object.values(checked).filter(Boolean).length;
   const pct = Math.round((completed / HABITS.length) * 100);
@@ -73,7 +130,7 @@ export function HabitTracker() {
           <CheckCircle2 className="h-5 w-5 text-primary" />
         </div>
         <div className="flex-1">
-          <h2 className="text-2xl font-bold tracking-tight">Daily Habit Tracker</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Tracker</h2>
           <p className="text-sm text-muted-foreground">{today}</p>
         </div>
         <Button
@@ -96,6 +153,119 @@ export function HabitTracker() {
           <Progress value={pct} className="h-2" />
           <p className="mt-2 text-xs text-muted-foreground">
             {completed} of {HABITS.length} habits complete
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border/60">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            <LineChart className="h-4 w-4 text-primary" /> Weekly Progress — Weight & Waist
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-lg border border-border/60 p-3">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+                <Scale className="h-3.5 w-3.5 text-primary" /> Latest avg weight
+              </div>
+              <div className="mt-1 text-2xl font-bold">
+                {latest?.weight ? `${latest.weight} kg` : "—"}
+              </div>
+              {weightDelta !== null && (
+                <div className={`text-xs ${weightDelta <= 0 ? "text-primary" : "text-accent"}`}>
+                  {weightDelta > 0 ? "+" : ""}
+                  {weightDelta.toFixed(1)} kg vs previous week
+                </div>
+              )}
+            </div>
+            <div className="rounded-lg border border-border/60 p-3">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+                <Ruler className="h-3.5 w-3.5 text-accent" /> Latest waist
+              </div>
+              <div className="mt-1 text-2xl font-bold">
+                {latest?.waist ? `${latest.waist} cm` : "—"}
+              </div>
+              {waistDelta !== null && (
+                <div className={`text-xs ${waistDelta <= 0 ? "text-primary" : "text-accent"}`}>
+                  {waistDelta > 0 ? "+" : ""}
+                  {waistDelta.toFixed(1)} cm vs previous week
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+            <div>
+              <Label htmlFor="weight" className="text-xs uppercase tracking-wider text-muted-foreground">
+                Avg weight (kg)
+              </Label>
+              <Input
+                id="weight"
+                type="number"
+                step="0.1"
+                inputMode="decimal"
+                placeholder="e.g. 75.8"
+                value={weightInput}
+                onChange={(e) => setWeightInput(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="waist" className="text-xs uppercase tracking-wider text-muted-foreground">
+                Waist (cm)
+              </Label>
+              <Input
+                id="waist"
+                type="number"
+                step="0.1"
+                inputMode="decimal"
+                placeholder="e.g. 82"
+                value={waistInput}
+                onChange={(e) => setWaistInput(e.target.value)}
+              />
+            </div>
+            <Button onClick={saveMeasure} className="sm:w-auto">
+              Save this week
+            </Button>
+          </div>
+
+          {sortedMeasures.length > 0 && (
+            <div className="overflow-hidden rounded-md border border-border/60">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium">Week of</th>
+                    <th className="px-3 py-2 text-left font-medium">Weight (kg)</th>
+                    <th className="px-3 py-2 text-left font-medium">Waist (cm)</th>
+                    <th className="px-3 py-2" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedMeasures.map((m) => (
+                    <tr key={m.week} className="border-t border-border/60">
+                      <td className="px-3 py-2 text-muted-foreground">{m.week}</td>
+                      <td className="px-3 py-2 font-medium">{m.weight || "—"}</td>
+                      <td className="px-3 py-2 font-medium">{m.waist || "—"}</td>
+                      <td className="px-3 py-2 text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setMeasures((prev) => prev.filter((x) => x.week !== m.week))
+                          }
+                          className="h-7 px-2 text-muted-foreground hover:text-foreground"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Log once a week — same day, same time (e.g. Monday morning). Trends matter more than daily swings.
           </p>
         </CardContent>
       </Card>

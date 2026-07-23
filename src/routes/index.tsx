@@ -75,7 +75,7 @@ function Index() {
               <Apple className="h-4 w-4" /> Meals
             </TabsTrigger>
             <TabsTrigger value="habits" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <CheckCircle2 className="h-4 w-4" /> Habits
+              <CheckCircle2 className="h-4 w-4" /> Tracker
             </TabsTrigger>
             <TabsTrigger value="recovery" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <HeartPulse className="h-4 w-4" /> Recovery
