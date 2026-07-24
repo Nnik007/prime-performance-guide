@@ -223,22 +223,22 @@ export function HabitTracker() {
                       </div>
                       <ResponsiveContainer width="100%" height={180}>
                         <RLineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                          <XAxis dataKey="week" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                          <XAxis dataKey="week" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
                           <Tooltip
                             contentStyle={{
-                              background: "hsl(var(--card))",
-                              border: "1px solid hsl(var(--border))",
+                              background: "var(--card)",
+                              border: "1px solid var(--border)",
                               borderRadius: 6,
                               fontSize: 12,
                             }}
                           />
-                          <ReferenceLine y={72} stroke="hsl(var(--accent))" strokeDasharray="4 4" label={{ value: "Target 72", fill: "hsl(var(--accent))", fontSize: 10, position: "insideTopRight" }} />
+                          <ReferenceLine y={72} stroke="var(--accent)" strokeDasharray="4 4" label={{ value: "Target 72", fill: "var(--accent)", fontSize: 10, position: "insideTopRight" }} />
                           <Line
                             type="monotone"
                             dataKey="weight"
-                            stroke="hsl(var(--primary))"
+                            stroke="var(--primary)"
                             strokeWidth={2}
                             dot={{ r: 3 }}
                             connectNulls
@@ -252,13 +252,13 @@ export function HabitTracker() {
                       </div>
                       <ResponsiveContainer width="100%" height={180}>
                         <RLineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                          <XAxis dataKey="week" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                          <XAxis dataKey="week" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
                           <Tooltip
                             contentStyle={{
-                              background: "hsl(var(--card))",
-                              border: "1px solid hsl(var(--border))",
+                              background: "var(--card)",
+                              border: "1px solid var(--border)",
                               borderRadius: 6,
                               fontSize: 12,
                             }}
@@ -266,7 +266,7 @@ export function HabitTracker() {
                           <Line
                             type="monotone"
                             dataKey="waist"
-                            stroke="hsl(var(--accent))"
+                            stroke="var(--accent)"
                             strokeWidth={2}
                             dot={{ r: 3 }}
                             connectNulls
