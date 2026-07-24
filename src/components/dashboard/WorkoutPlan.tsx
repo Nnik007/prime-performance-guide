@@ -485,6 +485,7 @@ export function WorkoutPlan() {
                       <ExerciseLogger
                         day={d.day}
                         exercise={b.name}
+                        targetReps={parseTargetReps(b.details)}
                         options={[b.name, ...(b.alternatives ?? [])]}
                         log={log}
                         setLog={setLog}
