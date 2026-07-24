@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Dumbbell, Trophy, History, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { Dumbbell, Trophy, History, ChevronDown, ChevronUp, Check, TrendingUp, TrendingDown, Target } from "lucide-react";
 
 type Day = {
   day: string;
@@ -154,32 +154,148 @@ function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
+function parseTargetReps(details: string): number | null {
+  const m = details.match(/(\d+)\s*[×x]\s*(\d+)/);
+  return m ? Number(m[2]) : null;
+}
+
+function weightIncrement(w: number): number {
+  // Small isolation loads → smaller jumps
+  if (w < 20) return 1;
+  if (w < 40) return 2.5;
+  return 2.5;
+}
+
+type Suggestion =
+  | { kind: "overload"; weight: number; reps: number; note: string }
+  | { kind: "repeat"; weight: number; reps: number; note: string }
+  | { kind: "deload"; weight: number; reps: number; note: string }
+  | { kind: "start"; note: string }
+  | null;
+
+function suggestNext(
+  entries: LogEntry[],
+  targetReps: number | null,
+): Suggestion {
+  const numeric = entries
+    .filter((e) => e.weight && !isNaN(Number(e.weight)) && e.reps && !isNaN(Number(e.reps)))
+    .sort((a, b) => a.ts - b.ts);
+
+  if (numeric.length === 0) {
+    return { kind: "start", note: "Log your first working set to unlock progression." };
+  }
+
+  const last = numeric[numeric.length - 1];
+  const lastW = Number(last.weight);
+  const lastR = Number(last.reps);
+  const inc = weightIncrement(lastW);
+  const target = targetReps ?? lastR;
+
+  // Deload check: last 3 sessions same weight, reps not increasing.
+  if (numeric.length >= 3) {
+    const last3 = numeric.slice(-3);
+    const sameWeight = last3.every((e) => Number(e.weight) === lastW);
+    const notImproving = Number(last3[2].reps) <= Number(last3[0].reps);
+    if (sameWeight && notImproving && lastR < target) {
+      const deloadW = Math.round((lastW * 0.9) * 2) / 2; // nearest 0.5
+      return {
+        kind: "deload",
+        weight: deloadW,
+        reps: target,
+        note: "3 stalled sessions — deload 10% and rebuild.",
+      };
+    }
+  }
+
+  if (lastR >= target) {
+    return {
+      kind: "overload",
+      weight: lastW + inc,
+      reps: target,
+      note: `Hit target — add ${inc} kg.`,
+    };
+  }
+
+  return {
+    kind: "repeat",
+    weight: lastW,
+    reps: Math.min(target, lastR + 1),
+    note: `Same weight — push for ${Math.min(target, lastR + 1)} reps.`,
+  };
+}
+
+function SuggestionBadge({ suggestion }: { suggestion: Suggestion }) {
+  if (!suggestion) return null;
+  const config = {
+    overload: {
+      cls: "border-primary/40 bg-primary/10 text-primary",
+      icon: TrendingUp,
+      label: "Progressive overload",
+    },
+    deload: {
+      cls: "border-accent/40 bg-accent/10 text-accent",
+      icon: TrendingDown,
+      label: "Deload",
+    },
+    repeat: {
+      cls: "border-border bg-muted/40 text-foreground",
+      icon: Target,
+      label: "Push reps",
+    },
+    start: {
+      cls: "border-border bg-muted/40 text-muted-foreground",
+      icon: Target,
+      label: "Start",
+    },
+  }[suggestion.kind];
+  const Icon = config.icon;
+  return (
+    <div className={`mt-1 flex items-start gap-1.5 rounded-md border px-2 py-1 text-[11px] ${config.cls}`}>
+      <Icon className="mt-0.5 h-3 w-3 shrink-0" />
+      <div className="flex-1 leading-snug">
+        <span className="font-semibold uppercase tracking-wider">{config.label}:</span>{" "}
+        {suggestion.kind === "start"
+          ? suggestion.note
+          : `${suggestion.weight} kg × ${suggestion.reps} · ${suggestion.note}`}
+      </div>
+    </div>
+  );
+}
+
 function ExerciseLogger({
   day,
   exercise,
+  targetReps,
   options,
   log,
   setLog,
 }: {
   day: string;
   exercise: string;
+  targetReps: number | null;
   options: string[];
   log: LogEntry[];
   setLog: React.Dispatch<React.SetStateAction<LogEntry[]>>;
 }) {
-  const last = useMemo(
+  const entries = useMemo(
     () =>
       [...log]
         .filter((e) => e.day === day && e.exercise === exercise)
-        .sort((a, b) => b.ts - a.ts)[0],
+        .sort((a, b) => a.ts - b.ts),
     [log, day, exercise],
   );
+  const last = entries[entries.length - 1];
+  const suggestion = useMemo(() => suggestNext(entries, targetReps), [entries, targetReps]);
 
   const [open, setOpen] = useState(false);
   const [variant, setVariant] = useState(last?.variant ?? exercise);
+  const suggestedWeight =
+    suggestion && suggestion.kind !== "start" ? String(suggestion.weight) : "";
+  const suggestedReps =
+    suggestion && suggestion.kind !== "start" ? String(suggestion.reps) : "";
   const [sets, setSets] = useState(last?.sets ?? "");
-  const [reps, setReps] = useState(last?.reps ?? "");
-  const [weight, setWeight] = useState(last?.weight ?? "");
+  const [reps, setReps] = useState(last?.reps ?? suggestedReps);
+  const [weight, setWeight] = useState(last?.weight ?? suggestedWeight);
   const [saved, setSaved] = useState(false);
 
   const save = () => {
@@ -201,10 +317,11 @@ function ExerciseLogger({
 
   return (
     <div className="mt-2">
+      <SuggestionBadge suggestion={suggestion} />
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-primary hover:underline"
+        className="mt-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-primary hover:underline"
       >
         {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
         {open ? "Hide log" : "Log this exercise"}
@@ -217,6 +334,18 @@ function ExerciseLogger({
       )}
       {open && (
         <div className="mt-2 rounded-md border border-border/60 bg-muted/20 p-2.5 space-y-2">
+          {suggestion && suggestion.kind !== "start" && (
+            <button
+              type="button"
+              onClick={() => {
+                setWeight(String(suggestion.weight));
+                setReps(String(suggestion.reps));
+              }}
+              className="text-[11px] font-semibold uppercase tracking-wider text-primary hover:underline"
+            >
+              Use suggested {suggestion.weight} kg × {suggestion.reps}
+            </button>
+          )}
           <Select value={variant} onValueChange={setVariant}>
             <SelectTrigger className="h-8 text-xs">
               <SelectValue />
