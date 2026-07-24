@@ -6,6 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, RotateCcw, Sparkles, LineChart, Scale, Ruler, Trash2 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  LineChart as RLineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ReferenceLine,
+  CartesianGrid,
+} from "recharts";
 
 const HABITS = [
   { id: "train", label: "Completed today's training / rest as planned", cat: "Training" },
@@ -194,6 +204,85 @@ export function HabitTracker() {
               )}
             </div>
           </div>
+
+          {sortedMeasures.length >= 2 ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {(() => {
+                const chartData = [...measures]
+                  .sort((a, b) => a.week.localeCompare(b.week))
+                  .map((m) => ({
+                    week: m.week.slice(5),
+                    weight: m.weight ? Number(m.weight) : null,
+                    waist: m.waist ? Number(m.waist) : null,
+                  }));
+                return (
+                  <>
+                    <div className="rounded-lg border border-border/60 p-3">
+                      <div className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">
+                        Weight trend (kg)
+                      </div>
+                      <ResponsiveContainer width="100%" height={180}>
+                        <RLineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                          <XAxis dataKey="week" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                          <Tooltip
+                            contentStyle={{
+                              background: "var(--card)",
+                              border: "1px solid var(--border)",
+                              borderRadius: 6,
+                              fontSize: 12,
+                            }}
+                          />
+                          <ReferenceLine y={72} stroke="var(--accent)" strokeDasharray="4 4" label={{ value: "Target 72", fill: "var(--accent)", fontSize: 10, position: "insideTopRight" }} />
+                          <Line
+                            type="monotone"
+                            dataKey="weight"
+                            stroke="var(--primary)"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls
+                          />
+                        </RLineChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="rounded-lg border border-border/60 p-3">
+                      <div className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">
+                        Waist trend (cm)
+                      </div>
+                      <ResponsiveContainer width="100%" height={180}>
+                        <RLineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                          <XAxis dataKey="week" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                          <Tooltip
+                            contentStyle={{
+                              background: "var(--card)",
+                              border: "1px solid var(--border)",
+                              borderRadius: 6,
+                              fontSize: 12,
+                            }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="waist"
+                            stroke="var(--accent)"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls
+                          />
+                        </RLineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          ) : (
+            <div className="rounded-lg border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground">
+              Log at least 2 weeks to see your weight & waist trends here.
+            </div>
+          )}
 
           <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
             <div>

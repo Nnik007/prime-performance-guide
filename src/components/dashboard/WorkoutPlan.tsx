@@ -1,6 +1,16 @@
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dumbbell, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Dumbbell, Trophy, History, ChevronDown, ChevronUp, Check } from "lucide-react";
 
 type Day = {
   day: string;
@@ -107,7 +117,199 @@ const typeStyles: Record<Day["type"], string> = {
   rest: "bg-muted text-muted-foreground border-border",
 };
 
+const LOG_KEY = "forge-workout-log";
+
+type LogEntry = {
+  id: string;
+  ts: number;
+  day: string;
+  exercise: string; // planned exercise name
+  variant: string; // actual variant used
+  sets: string;
+  reps: string;
+  weight: string;
+};
+
+function useWorkoutLog() {
+  const [log, setLog] = useState<LogEntry[]>([]);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LOG_KEY);
+      if (raw) setLog(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOG_KEY, JSON.stringify(log));
+    } catch {
+      /* ignore */
+    }
+  }, [log]);
+  return [log, setLog] as const;
+}
+
+function formatDate(ts: number) {
+  return new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
+
+function ExerciseLogger({
+  day,
+  exercise,
+  options,
+  log,
+  setLog,
+}: {
+  day: string;
+  exercise: string;
+  options: string[];
+  log: LogEntry[];
+  setLog: React.Dispatch<React.SetStateAction<LogEntry[]>>;
+}) {
+  const last = useMemo(
+    () =>
+      [...log]
+        .filter((e) => e.day === day && e.exercise === exercise)
+        .sort((a, b) => b.ts - a.ts)[0],
+    [log, day, exercise],
+  );
+
+  const [open, setOpen] = useState(false);
+  const [variant, setVariant] = useState(last?.variant ?? exercise);
+  const [sets, setSets] = useState(last?.sets ?? "");
+  const [reps, setReps] = useState(last?.reps ?? "");
+  const [weight, setWeight] = useState(last?.weight ?? "");
+  const [saved, setSaved] = useState(false);
+
+  const save = () => {
+    if (!sets && !reps && !weight) return;
+    const entry: LogEntry = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      ts: Date.now(),
+      day,
+      exercise,
+      variant,
+      sets,
+      reps,
+      weight,
+    };
+    setLog((prev) => [...prev, entry]);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1200);
+  };
+
+  return (
+    <div className="mt-2">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-primary hover:underline"
+      >
+        {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+        {open ? "Hide log" : "Log this exercise"}
+      </button>
+      {last && !open && (
+        <div className="mt-1 text-[11px] text-muted-foreground">
+          Last: {last.variant} · {last.sets || "?"}×{last.reps || "?"}
+          {last.weight ? ` @ ${last.weight} kg` : ""} — {formatDate(last.ts)}
+        </div>
+      )}
+      {open && (
+        <div className="mt-2 rounded-md border border-border/60 bg-muted/20 p-2.5 space-y-2">
+          <Select value={variant} onValueChange={setVariant}>
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((o) => (
+                <SelectItem key={o} value={o} className="text-xs">
+                  {o}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="grid grid-cols-3 gap-2">
+            <Input
+              className="h-8 text-xs"
+              placeholder="Sets"
+              inputMode="numeric"
+              value={sets}
+              onChange={(e) => setSets(e.target.value)}
+            />
+            <Input
+              className="h-8 text-xs"
+              placeholder="Reps"
+              inputMode="numeric"
+              value={reps}
+              onChange={(e) => setReps(e.target.value)}
+            />
+            <Input
+              className="h-8 text-xs"
+              placeholder="kg"
+              inputMode="decimal"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+            />
+          </div>
+          <Button size="sm" onClick={save} className="h-7 w-full text-xs">
+            {saved ? (
+              <>
+                <Check className="mr-1 h-3 w-3" /> Saved
+              </>
+            ) : (
+              "Save set"
+            )}
+          </Button>
+          {last && (
+            <div className="text-[11px] text-muted-foreground">
+              Last: {last.variant} · {last.sets || "?"}×{last.reps || "?"}
+              {last.weight ? ` @ ${last.weight} kg` : ""} — {formatDate(last.ts)}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DayHistory({ day, log }: { day: string; log: LogEntry[] }) {
+  const [open, setOpen] = useState(false);
+  const entries = useMemo(
+    () => [...log].filter((e) => e.day === day).sort((a, b) => b.ts - a.ts),
+    [log, day],
+  );
+  if (entries.length === 0) return null;
+  return (
+    <div className="mt-3">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
+      >
+        <History className="h-3 w-3" />
+        {open ? "Hide history" : `History (${entries.length})`}
+      </button>
+      {open && (
+        <ul className="mt-2 space-y-1 rounded-md border border-border/60 bg-muted/20 p-2 text-[11px]">
+          {entries.map((e) => (
+            <li key={e.id} className="flex justify-between gap-2 text-muted-foreground">
+              <span className="truncate">
+                <span className="text-foreground">{e.variant}</span> · {e.sets || "?"}×
+                {e.reps || "?"}
+                {e.weight ? ` @ ${e.weight} kg` : ""}
+              </span>
+              <span className="shrink-0">{formatDate(e.ts)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export function WorkoutPlan() {
+  const [log, setLog] = useWorkoutLog();
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
@@ -150,9 +352,19 @@ export function WorkoutPlan() {
                         {b.alternatives.join(" · ")}
                       </span>
                     )}
+                    {d.type === "gym" && (
+                      <ExerciseLogger
+                        day={d.day}
+                        exercise={b.name}
+                        options={[b.name, ...(b.alternatives ?? [])]}
+                        log={log}
+                        setLog={setLog}
+                      />
+                    )}
                   </li>
                 ))}
               </ul>
+              {d.type === "gym" && <DayHistory day={d.day} log={log} />}
             </CardContent>
           </Card>
         ))}

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Apple, Flame, Beef, Droplet, Wheat } from "lucide-react";
+import { GroceryList } from "./GroceryList";
 
 const macros = [
   { label: "Calories", value: "≈ 2,250 kcal", detail: "~400 kcal deficit · split across 3 meals", icon: Flame, color: "text-accent" },
@@ -174,6 +175,8 @@ export function MealPlan() {
           </Card>
         ))}
       </div>
+
+      <GroceryList />
     </div>
   );
 }
