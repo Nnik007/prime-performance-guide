@@ -6,61 +6,63 @@ import { ShoppingCart, RotateCcw, Copy, Check } from "lucide-react";
 
 const GROCERY_KEY = "forge-grocery";
 
-const GROCERIES: { group: string; items: string[] }[] = [
+type Item = { name: string; qty: string };
+
+const GROCERIES: { group: string; items: Item[] }[] = [
   {
     group: "Proteins",
     items: [
-      "Chicken breast (1.2 kg)",
-      "Salmon fillets (2–3)",
-      "Lean beef mince or steak (500 g)",
-      "Turkey breast (400 g)",
-      "Tofu / tempeh (1 block)",
-      "Greek yogurt (1 kg tub)",
-      "Whey protein",
-      "Eggs (dozen)",
+      { name: "Chicken breast", qty: "1.2 kg" },
+      { name: "Salmon fillets", qty: "2–3 fillets" },
+      { name: "Lean beef mince or steak", qty: "500 g" },
+      { name: "Turkey breast", qty: "400 g" },
+      { name: "Tofu / tempeh", qty: "1 block" },
+      { name: "Greek yogurt", qty: "1 kg tub" },
+      { name: "Whey protein", qty: "1 tub" },
+      { name: "Eggs", qty: "12" },
     ],
   },
   {
     group: "Carbs",
     items: [
-      "Rice (basmati or jasmine)",
-      "Quinoa",
-      "Sweet potatoes",
-      "Pasta (wholegrain)",
-      "Potatoes",
-      "Rice cakes",
-      "Bananas",
-      "Oats (for shakes / snack)",
+      { name: "Rice (basmati or jasmine)", qty: "1 kg" },
+      { name: "Quinoa", qty: "500 g" },
+      { name: "Sweet potatoes", qty: "1 kg" },
+      { name: "Pasta (wholegrain)", qty: "500 g" },
+      { name: "Potatoes", qty: "1 kg" },
+      { name: "Rice cakes", qty: "1 pack" },
+      { name: "Bananas", qty: "7" },
+      { name: "Oats", qty: "500 g" },
     ],
   },
   {
     group: "Produce",
     items: [
-      "Mixed salad greens",
-      "Broccoli / green beans",
-      "Bell peppers",
-      "Tomatoes & cucumber",
-      "Berries (fresh or frozen)",
-      "Apples",
-      "Avocado (2–3)",
-      "Lemons",
+      { name: "Mixed salad greens", qty: "2 bags" },
+      { name: "Broccoli / green beans", qty: "600 g" },
+      { name: "Bell peppers", qty: "4" },
+      { name: "Tomatoes & cucumber", qty: "500 g each" },
+      { name: "Berries (fresh or frozen)", qty: "500 g" },
+      { name: "Apples", qty: "6" },
+      { name: "Avocado", qty: "3" },
+      { name: "Lemons", qty: "3" },
     ],
   },
   {
     group: "Fats & Extras",
     items: [
-      "Extra virgin olive oil",
-      "Mixed nuts (almonds / walnuts)",
-      "Honey",
-      "Sea salt & pepper",
-      "Garlic & ginger",
+      { name: "Extra virgin olive oil", qty: "500 ml" },
+      { name: "Mixed nuts (almonds / walnuts)", qty: "300 g" },
+      { name: "Honey", qty: "1 jar" },
+      { name: "Sea salt & pepper", qty: "as needed" },
+      { name: "Garlic & ginger", qty: "1 bulb + thumb" },
     ],
   },
   {
     group: "Hydration",
     items: [
-      "Sparkling water",
-      "Herbal / green tea",
+      { name: "Sparkling water", qty: "6 × 1.5 L" },
+      { name: "Herbal / green tea", qty: "1 box" },
     ],
   },
 ];
@@ -91,7 +93,7 @@ export function GroceryList() {
 
   const copyRemaining = async () => {
     const remaining = GROCERIES.flatMap((g) =>
-      g.items.filter((i) => !checked[i]).map((i) => `- ${i}`),
+      g.items.filter((i) => !checked[i.name]).map((i) => `- ${i.name} — ${i.qty}`),
     ).join("\n");
     try {
       await navigator.clipboard.writeText(remaining || "All items checked off — good week ahead.");
@@ -121,7 +123,7 @@ export function GroceryList() {
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Derived from your meal plan. {gotCount}/{totalItems} in the basket.
+          Derived from your meal plan · Tick items as you buy them · {gotCount}/{totalItems} in the basket.
         </p>
       </CardHeader>
       <CardContent>
@@ -133,21 +135,34 @@ export function GroceryList() {
               </div>
               <ul className="space-y-1.5">
                 {g.items.map((item) => (
-                  <li key={item}>
+                  <li key={item.name}>
                     <label className="flex cursor-pointer items-start gap-2 rounded-md p-1.5 -m-1.5 transition-colors hover:bg-muted/40">
                       <Checkbox
-                        checked={!!checked[item]}
+                        checked={!!checked[item.name]}
                         onCheckedChange={(v) =>
-                          setChecked((prev) => ({ ...prev, [item]: !!v }))
+                          setChecked((prev) => ({ ...prev, [item.name]: !!v }))
                         }
                         className="mt-0.5"
                       />
-                      <span
-                        className={`text-sm leading-snug ${
-                          checked[item] ? "text-muted-foreground line-through" : "text-foreground"
-                        }`}
-                      >
-                        {item}
+                      <span className="flex flex-1 items-baseline justify-between gap-2 leading-snug">
+                        <span
+                          className={`text-sm ${
+                            checked[item.name]
+                              ? "text-muted-foreground line-through"
+                              : "text-foreground"
+                          }`}
+                        >
+                          {item.name}
+                        </span>
+                        <span
+                          className={`shrink-0 text-[11px] tabular-nums ${
+                            checked[item.name]
+                              ? "text-muted-foreground/70 line-through"
+                              : "text-primary"
+                          }`}
+                        >
+                          {item.qty}
+                        </span>
                       </span>
                     </label>
                   </li>
