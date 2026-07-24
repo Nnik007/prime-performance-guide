@@ -175,6 +175,8 @@ export function MealPlan() {
           </Card>
         ))}
       </div>
+
+      <GroceryList />
     </div>
   );
 }
