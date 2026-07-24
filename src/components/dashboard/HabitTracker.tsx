@@ -6,6 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, RotateCcw, Sparkles, LineChart, Scale, Ruler, Trash2 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  LineChart as RLineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ReferenceLine,
+  CartesianGrid,
+} from "recharts";
 
 const HABITS = [
   { id: "train", label: "Completed today's training / rest as planned", cat: "Training" },
