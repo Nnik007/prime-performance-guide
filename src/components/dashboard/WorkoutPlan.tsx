@@ -443,7 +443,7 @@ export function WorkoutPlan() {
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Weekly Training Plan</h2>
           <p className="text-sm text-muted-foreground">
-            Goal: lean out + build muscle. Balanced around your football sessions — hard gym days sit away from match load.
+            Hybrid athlete build — strength, power, and conditioning across four gym days, wrapped around your football sessions.
           </p>
         </div>
       </div>
