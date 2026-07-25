@@ -458,13 +458,21 @@ export function WorkoutPlan() {
                   {d.type.toUpperCase()}
                 </Badge>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Trophy className="h-3.5 w-3.5" />
-                <span>{d.focus}</span>
-                <span className="ml-auto text-xs">{d.duration}</span>
-              </div>
+              {d.type !== "football" && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Trophy className="h-3.5 w-3.5" />
+                  <span>{d.focus}</span>
+                  {d.duration && <span className="ml-auto text-xs">{d.duration}</span>}
+                </div>
+              )}
             </CardHeader>
             <CardContent>
+              {d.type === "football" ? (
+                <div className="flex items-center gap-2 text-base font-semibold text-accent">
+                  <Trophy className="h-4 w-4" />
+                  Football
+                </div>
+              ) : (
               <ul className="space-y-2 text-sm">
                 {d.blocks.map((b) => (
                   <li key={b.name} className="flex flex-col border-l-2 border-primary/40 pl-3">
@@ -489,6 +497,7 @@ export function WorkoutPlan() {
                   </li>
                 ))}
               </ul>
+              )}
               {d.type === "gym" && <DayHistory day={d.day} log={log} />}
             </CardContent>
           </Card>
