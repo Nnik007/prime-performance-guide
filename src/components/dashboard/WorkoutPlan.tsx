@@ -39,7 +39,7 @@ const week: Day[] = [
       { name: "Weighted Pull-Up", details: "4 × 6", alternatives: ["Lat Pulldown (heavy)", "Neutral-Grip Chin-Up", "Assisted Pull-Up"] },
       { name: "Seated DB Shoulder Press", details: "3 × 8", alternatives: ["Standing Overhead Press", "Landmine Press", "Machine Shoulder Press"] },
       { name: "Chest-Supported Row", details: "3 × 10", alternatives: ["Barbell Row", "Cable Row", "Seal Row"] },
-      { name: "Zone 2 conditioning", details: "20 min steady bike/row (nasal-breathing pace)", alternatives: ["Incline treadmill walk 20 min", "Easy jog 20 min", "Ski erg 20 min"] },
+      { name: "Easy Run (Zone 2)", details: "25–30 min conversational pace (nasal-breathing, ~65–75% MHR)", alternatives: ["Steady bike 25 min", "Incline treadmill walk 25 min", "Row 25 min steady"] },
       { name: "Core", details: "Hanging Leg Raise 3 × 12 + Pallof Press 3 × 10/side", alternatives: ["Ab Wheel + Side Plank 45s", "Cable Crunch + Dead Bug"] },
     ],
   },
@@ -51,10 +51,10 @@ const week: Day[] = [
     blocks: [
       { name: "Box Jumps", details: "5 × 3 (max intent, full rest) — power output", alternatives: ["Broad Jumps 5 × 3", "Depth Jumps 4 × 3", "Trap-Bar Jump 4 × 3"] },
       { name: "Back Squat", details: "5 × 4 (heavy, leave 2 in tank — football tomorrow)", alternatives: ["Front Squat", "Safety-Bar Squat", "Hack Squat"] },
-      { name: "Romanian Deadlift", details: "4 × 6", alternatives: ["Trap-Bar RDL", "Single-Leg RDL", "Good Morning"] },
+      { name: "Cable Pull-Through", details: "4 × 10 (hinge, squeeze glutes hard)", alternatives: ["45° Back Extension (weighted)", "Hip Thrust", "Kettlebell Swing 4 × 12"] },
       { name: "Bulgarian Split Squat", details: "3 × 8 / leg", alternatives: ["Reverse Lunge", "Step-Ups (weighted)", "Split Squat (Smith)"] },
       { name: "Nordic Curl or Leg Curl", details: "3 × 8", alternatives: ["Glute-Ham Raise", "Seated Leg Curl", "Swiss Ball Curl"] },
-      { name: "Sprint intervals", details: "6 × 30 m @ 90% + walk-back rest (or 6 × 20s bike sprints)", alternatives: ["Hill sprints 6 × 20s", "Assault bike 6 × 20s / 90s", "Rower 6 × 150 m max"] },
+      { name: "Sprint / Tempo Run intervals", details: "6 × 30 m sprints @ 90% + walk-back rest, or 4 × 400 m tempo run @ 5k pace / 90s rest", alternatives: ["Hill sprints 6 × 20s", "Assault bike 6 × 20s / 90s", "Rower 6 × 150 m max"] },
     ],
   },
   {
@@ -85,7 +85,7 @@ const week: Day[] = [
     type: "gym",
     duration: "70–80 min",
     blocks: [
-      { name: "Trap-Bar Deadlift", details: "5 × 3 (moderately heavy, fast concentric)", alternatives: ["Conventional Deadlift", "Rack Pulls", "Sumo Deadlift"] },
+      { name: "Barbell Hip Thrust", details: "5 × 5 (heavy, controlled — hinge power without pulling from the floor)", alternatives: ["Cable Pull-Through (heavy)", "45° Back Extension (weighted)", "Reverse Hyper"] },
       { name: "Weighted Dip", details: "4 × 6", alternatives: ["Close-Grip Bench", "Ring Dip", "Machine Dip"] },
       { name: "DB Bench Press", details: "3 × 10", alternatives: ["Barbell Bench", "Machine Chest Press", "Weighted Push-Ups"] },
       { name: "Walking Lunge (loaded)", details: "3 × 10 / leg", alternatives: ["Reverse Lunge", "Step-Ups", "Sled Push"] },
