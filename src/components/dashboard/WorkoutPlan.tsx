@@ -689,6 +689,7 @@ function DayHistory({ day, log }: { day: string; log: LogEntry[] }) {
 
 export function WorkoutPlan() {
   const [log, setLog] = useWorkoutLog();
+  const [runLog, setRunLog] = useRunLog();
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
@@ -762,6 +763,7 @@ export function WorkoutPlan() {
                   <div className="mt-1 text-sm font-medium text-foreground">{d.run.title}</div>
                   <div className="text-xs text-muted-foreground">{d.run.details}</div>
                   <div className="mt-1 text-[11px] italic text-muted-foreground">{d.run.when}</div>
+                  <RunLogger day={d.day} run={d.run} log={runLog} setLog={setRunLog} />
                 </div>
               )}
               {d.type === "gym" && <DayHistory day={d.day} log={log} />}
