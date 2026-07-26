@@ -140,6 +140,7 @@ const typeStyles: Record<Day["type"], string> = {
 };
 
 const LOG_KEY = "forge-workout-log";
+const RUN_LOG_KEY = "forge-run-log";
 
 type LogEntry = {
   id: string;
@@ -170,6 +171,233 @@ function useWorkoutLog() {
     }
   }, [log]);
   return [log, setLog] as const;
+}
+
+type RunEntry = {
+  id: string;
+  ts: number;
+  day: string;
+  runTitle: string;
+  distanceKm: string;
+  timeMin: string;
+  feel: "great" | "solid" | "ok" | "rough" | "";
+  notes: string;
+};
+
+function useRunLog() {
+  const [log, setLog] = useState<RunEntry[]>([]);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(RUN_LOG_KEY);
+      if (raw) setLog(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem(RUN_LOG_KEY, JSON.stringify(log));
+    } catch { /* ignore */ }
+  }, [log]);
+  return [log, setLog] as const;
+}
+
+const FEEL_OPTIONS: { value: RunEntry["feel"]; label: string; emoji: string }[] = [
+  { value: "great", label: "Great", emoji: "🔥" },
+  { value: "solid", label: "Solid", emoji: "💪" },
+  { value: "ok", label: "OK", emoji: "😐" },
+  { value: "rough", label: "Rough", emoji: "😮‍💨" },
+];
+
+function RunLogger({
+  day,
+  run,
+  log,
+  setLog,
+}: {
+  day: string;
+  run: NonNullable<Day["run"]>;
+  log: RunEntry[];
+  setLog: React.Dispatch<React.SetStateAction<RunEntry[]>>;
+}) {
+  const entries = useMemo(
+    () => [...log].filter((e) => e.day === day).sort((a, b) => b.ts - a.ts),
+    [log, day],
+  );
+  const last = entries[0];
+  const [open, setOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [distanceKm, setDistanceKm] = useState("");
+  const [timeMin, setTimeMin] = useState("");
+  const [feel, setFeel] = useState<RunEntry["feel"]>("");
+  const [notes, setNotes] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  const pace = useMemo(() => {
+    const d = Number(distanceKm);
+    const t = Number(timeMin);
+    if (!d || !t) return null;
+    const paceMin = t / d;
+    const m = Math.floor(paceMin);
+    const s = Math.round((paceMin - m) * 60);
+    return `${m}:${String(s).padStart(2, "0")} /km`;
+  }, [distanceKm, timeMin]);
+
+  const save = () => {
+    if (!distanceKm && !timeMin && !feel) return;
+    setLog((prev) => [
+      ...prev,
+      {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        ts: Date.now(),
+        day,
+        runTitle: run.title,
+        distanceKm,
+        timeMin,
+        feel,
+        notes,
+      },
+    ]);
+    setDistanceKm("");
+    setTimeMin("");
+    setFeel("");
+    setNotes("");
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1200);
+  };
+
+  return (
+    <div className="mt-3 border-t border-accent/20 pt-3">
+      <div className="grid grid-cols-1 gap-1.5 text-[11px] text-muted-foreground sm:grid-cols-2">
+        <div>
+          <span className="font-semibold text-accent">Effort:</span> {run.pacing.effort}
+        </div>
+        <div>
+          <span className="font-semibold text-accent">HR:</span> {run.pacing.hr}
+        </div>
+        <div>
+          <span className="font-semibold text-accent">Talk test:</span> {run.pacing.talkTest}
+        </div>
+        <div>
+          <span className="font-semibold text-accent">RPE:</span> {run.pacing.rpe}
+        </div>
+      </div>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-accent hover:underline"
+        >
+          {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          {open ? "Hide run log" : "Log this run"}
+        </button>
+        {entries.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setHistoryOpen((o) => !o)}
+            className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
+          >
+            <History className="h-3 w-3" />
+            {historyOpen ? "Hide history" : `History (${entries.length})`}
+          </button>
+        )}
+      </div>
+      {last && !open && (
+        <div className="mt-1 text-[11px] text-muted-foreground">
+          Last: {last.distanceKm || "?"} km · {last.timeMin || "?"} min
+          {last.feel ? ` · ${FEEL_OPTIONS.find((f) => f.value === last.feel)?.emoji ?? ""}` : ""} —{" "}
+          {formatDate(last.ts)}
+        </div>
+      )}
+      {open && (
+        <div className="mt-2 space-y-2 rounded-md border border-accent/30 bg-background/40 p-2.5">
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              className="h-8 text-xs"
+              placeholder="Distance (km)"
+              inputMode="decimal"
+              value={distanceKm}
+              onChange={(e) => setDistanceKm(e.target.value)}
+            />
+            <Input
+              className="h-8 text-xs"
+              placeholder="Time (min)"
+              inputMode="decimal"
+              value={timeMin}
+              onChange={(e) => setTimeMin(e.target.value)}
+            />
+          </div>
+          {pace && (
+            <div className="text-[11px] text-muted-foreground">
+              Avg pace: <span className="font-semibold text-foreground">{pace}</span>
+            </div>
+          )}
+          <div className="flex flex-wrap gap-1.5">
+            {FEEL_OPTIONS.map((f) => (
+              <button
+                key={f.value}
+                type="button"
+                onClick={() => setFeel(feel === f.value ? "" : f.value)}
+                className={`rounded-md border px-2 py-1 text-[11px] transition-colors ${
+                  feel === f.value
+                    ? "border-accent bg-accent/20 text-accent"
+                    : "border-border bg-muted/20 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span className="mr-1">{f.emoji}</span>
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <Input
+            className="h-8 text-xs"
+            placeholder="Notes (optional)"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+          <Button size="sm" onClick={save} className="h-7 w-full text-xs">
+            {saved ? (
+              <>
+                <Check className="mr-1 h-3 w-3" /> Saved
+              </>
+            ) : (
+              "Save run"
+            )}
+          </Button>
+        </div>
+      )}
+      {historyOpen && entries.length > 0 && (
+        <ul className="mt-2 space-y-1 rounded-md border border-border/60 bg-muted/20 p-2 text-[11px]">
+          {entries.map((e) => {
+            const d = Number(e.distanceKm);
+            const t = Number(e.timeMin);
+            const paceStr = d && t
+              ? (() => {
+                  const p = t / d;
+                  const m = Math.floor(p);
+                  const s = Math.round((p - m) * 60);
+                  return `${m}:${String(s).padStart(2, "0")}/km`;
+                })()
+              : null;
+            const feelOpt = FEEL_OPTIONS.find((f) => f.value === e.feel);
+            return (
+              <li key={e.id} className="text-muted-foreground">
+                <div className="flex justify-between gap-2">
+                  <span className="truncate">
+                    <span className="text-foreground">
+                      {e.distanceKm || "?"} km · {e.timeMin || "?"} min
+                    </span>
+                    {paceStr ? ` · ${paceStr}` : ""}
+                    {feelOpt ? ` · ${feelOpt.emoji} ${feelOpt.label}` : ""}
+                  </span>
+                  <span className="shrink-0">{formatDate(e.ts)}</span>
+                </div>
+                {e.notes && <div className="italic">{e.notes}</div>}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 function formatDate(ts: number) {
