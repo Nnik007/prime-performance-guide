@@ -6,6 +6,7 @@ import { MealPlan } from "@/components/dashboard/MealPlan";
 import { HabitTracker } from "@/components/dashboard/HabitTracker";
 import { RecoveryPlan } from "@/components/dashboard/RecoveryPlan";
 import { MindsetBoost } from "@/components/dashboard/MindsetBoost";
+import { DailyQuote } from "@/components/dashboard/DailyQuote";
 import heroImg from "@/assets/hero-athlete.jpg";
 
 export const Route = createFileRoute("/")({
@@ -61,6 +62,8 @@ function Index() {
               </div>
             ))}
           </div>
+
+          <DailyQuote />
         </div>
       </header>
 
