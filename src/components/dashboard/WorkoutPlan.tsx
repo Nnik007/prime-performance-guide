@@ -18,7 +18,12 @@ type Day = {
   type: "gym" | "football" | "rest";
   duration: string;
   blocks: { name: string; details: string; alternatives?: string[] }[];
-  run?: { title: string; details: string; when: string };
+  run?: {
+    title: string;
+    details: string;
+    when: string;
+    pacing: { effort: string; hr: string; talkTest: string; rpe: string };
+  };
 };
 
 const week: Day[] = [
@@ -46,6 +51,12 @@ const week: Day[] = [
       title: "Easy Run (Zone 2)",
       details: "25–30 min conversational pace, nasal-breathing, ~65–75% MHR",
       when: "Separate session — morning or 6+ hrs before gym",
+      pacing: {
+        effort: "Easy",
+        hr: "Zone 2 · ~65–75% MHR (≈125–145 bpm)",
+        talkTest: "Full sentences, nasal breathing possible",
+        rpe: "RPE 3–4 / 10",
+      },
     },
   },
   {
@@ -101,6 +112,12 @@ const week: Day[] = [
       title: "Tempo Run",
       details: "4 × 400 m @ 5k pace / 90s jog rest, or 20 min steady tempo run",
       when: "Separate session — morning, before gym",
+      pacing: {
+        effort: "Tempo",
+        hr: "Zone 4 · ~85–90% MHR (≈160–175 bpm)",
+        talkTest: "Short phrases only — 'comfortably hard'",
+        rpe: "RPE 7–8 / 10",
+      },
     },
   },
   {
