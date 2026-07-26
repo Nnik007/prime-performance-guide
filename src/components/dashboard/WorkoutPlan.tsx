@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Dumbbell, Trophy, History, ChevronDown, ChevronUp, Check, TrendingUp, TrendingDown, Target } from "lucide-react";
+import { Dumbbell, Trophy, History, ChevronDown, ChevronUp, Check, TrendingUp, TrendingDown, Target, Footprints } from "lucide-react";
 
 type Day = {
   day: string;
@@ -18,6 +18,7 @@ type Day = {
   type: "gym" | "football" | "rest";
   duration: string;
   blocks: { name: string; details: string; alternatives?: string[] }[];
+  run?: { title: string; details: string; when: string };
 };
 
 const week: Day[] = [
@@ -39,9 +40,13 @@ const week: Day[] = [
       { name: "Weighted Pull-Up", details: "4 × 6", alternatives: ["Lat Pulldown (heavy)", "Neutral-Grip Chin-Up", "Assisted Pull-Up"] },
       { name: "Seated DB Shoulder Press", details: "3 × 8", alternatives: ["Standing Overhead Press", "Landmine Press", "Machine Shoulder Press"] },
       { name: "Chest-Supported Row", details: "3 × 10", alternatives: ["Barbell Row", "Cable Row", "Seal Row"] },
-      { name: "Easy Run (Zone 2)", details: "25–30 min conversational pace (nasal-breathing, ~65–75% MHR)", alternatives: ["Steady bike 25 min", "Incline treadmill walk 25 min", "Row 25 min steady"] },
       { name: "Core", details: "Hanging Leg Raise 3 × 12 + Pallof Press 3 × 10/side", alternatives: ["Ab Wheel + Side Plank 45s", "Cable Crunch + Dead Bug"] },
     ],
+    run: {
+      title: "Easy Run (Zone 2)",
+      details: "25–30 min conversational pace, nasal-breathing, ~65–75% MHR",
+      when: "Separate session — morning or 6+ hrs before gym",
+    },
   },
   {
     day: "Wednesday",
@@ -54,7 +59,7 @@ const week: Day[] = [
       { name: "Cable Pull-Through", details: "4 × 10 (hinge, squeeze glutes hard)", alternatives: ["45° Back Extension (weighted)", "Hip Thrust", "Kettlebell Swing 4 × 12"] },
       { name: "Bulgarian Split Squat", details: "3 × 8 / leg", alternatives: ["Reverse Lunge", "Step-Ups (weighted)", "Split Squat (Smith)"] },
       { name: "Nordic Curl or Leg Curl", details: "3 × 8", alternatives: ["Glute-Ham Raise", "Seated Leg Curl", "Swiss Ball Curl"] },
-      { name: "Sprint / Tempo Run intervals", details: "6 × 30 m sprints @ 90% + walk-back rest, or 4 × 400 m tempo run @ 5k pace / 90s rest", alternatives: ["Hill sprints 6 × 20s", "Assault bike 6 × 20s / 90s", "Rower 6 × 150 m max"] },
+      { name: "Sprint intervals (bike/rower)", details: "6 × 20s max @ 90s rest — non-impact conditioning", alternatives: ["Assault bike 6 × 20s", "Rower 6 × 150 m max", "Ski erg 6 × 20s"] },
     ],
   },
   {
@@ -92,6 +97,11 @@ const week: Day[] = [
       { name: "Cable Row", details: "3 × 12", alternatives: ["DB Row", "Machine Row", "Inverted Row"] },
       { name: "Metcon finisher", details: "5 rounds for time: 15 KB swings / 10 push-ups / 200 m row", alternatives: ["EMOM 12: 12 cal bike + 8 goblet squats", "5 × 250 m row + 15 swings", "Battle ropes 6 × 30s / 30s + 10 burpees"] },
     ],
+    run: {
+      title: "Tempo Run",
+      details: "4 × 400 m @ 5k pace / 90s jog rest, or 20 min steady tempo run",
+      when: "Separate session — morning, before gym",
+    },
   },
   {
     day: "Sunday",
