@@ -508,6 +508,17 @@ export function WorkoutPlan() {
                 ))}
               </ul>
               )}
+              {d.type === "gym" && d.run && (
+                <div className="mt-3 rounded-md border border-accent/40 bg-accent/10 p-3">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-accent">
+                    <Footprints className="h-3.5 w-3.5" />
+                    Run session (separate)
+                  </div>
+                  <div className="mt-1 text-sm font-medium text-foreground">{d.run.title}</div>
+                  <div className="text-xs text-muted-foreground">{d.run.details}</div>
+                  <div className="mt-1 text-[11px] italic text-muted-foreground">{d.run.when}</div>
+                </div>
+              )}
               {d.type === "gym" && <DayHistory day={d.day} log={log} />}
             </CardContent>
           </Card>
