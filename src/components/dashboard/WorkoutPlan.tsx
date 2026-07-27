@@ -11,6 +11,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Dumbbell, Trophy, History, ChevronDown, ChevronUp, Check, TrendingUp, TrendingDown, Target, Footprints } from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  LineChart as RLineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 
 type Day = {
   day: string;
@@ -182,6 +193,8 @@ type RunEntry = {
   timeMin: string;
   feel: "great" | "solid" | "ok" | "rough" | "";
   notes: string;
+  rpe?: string;
+  hrZone?: string;
 };
 
 function useRunLog() {
