@@ -366,6 +366,28 @@ function RunLogger({
               </button>
             ))}
           </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              className="h-8 text-xs"
+              placeholder="RPE (1-10)"
+              inputMode="decimal"
+              value={rpe}
+              onChange={(e) => setRpe(e.target.value)}
+            />
+            <Select value={hrZone} onValueChange={(v) => setHrZone(v === "none" ? "" : v)}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="HR zone" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">—</SelectItem>
+                <SelectItem value="Z1">Z1 · Recovery</SelectItem>
+                <SelectItem value="Z2">Z2 · Easy</SelectItem>
+                <SelectItem value="Z3">Z3 · Steady</SelectItem>
+                <SelectItem value="Z4">Z4 · Threshold</SelectItem>
+                <SelectItem value="Z5">Z5 · VO2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Input
             className="h-8 text-xs"
             placeholder="Notes (optional)"
