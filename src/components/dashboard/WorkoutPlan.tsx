@@ -445,6 +445,231 @@ function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
+function isoWeekKey(ts: number): string {
+  const d = new Date(ts);
+  d.setHours(0, 0, 0, 0);
+  // Monday as start of week
+  const day = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - day);
+  return `${d.getMonth() + 1}/${d.getDate()}`;
+}
+
+function RunTrends({ log }: { log: RunEntry[] }) {
+  const [weeks, setWeeks] = useState<4 | 8>(4);
+
+  const data = useMemo(() => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const day = (now.getDay() + 6) % 7;
+    const thisMonday = new Date(now);
+    thisMonday.setDate(now.getDate() - day);
+
+    const buckets: {
+      key: string;
+      start: number;
+      distance: number;
+      timeMin: number;
+      rpeSum: number;
+      rpeCount: number;
+      zoneCounts: Record<string, number>;
+      runs: number;
+    }[] = [];
+    for (let i = weeks - 1; i >= 0; i--) {
+      const start = new Date(thisMonday);
+      start.setDate(thisMonday.getDate() - i * 7);
+      buckets.push({
+        key: `${start.getDate()}/${start.getMonth() + 1}`,
+        start: start.getTime(),
+        distance: 0,
+        timeMin: 0,
+        rpeSum: 0,
+        rpeCount: 0,
+        zoneCounts: {},
+        runs: 0,
+      });
+    }
+    const minStart = buckets[0].start;
+    for (const e of log) {
+      if (e.ts < minStart) continue;
+      const idx = Math.floor((e.ts - minStart) / (7 * 24 * 60 * 60 * 1000));
+      if (idx < 0 || idx >= buckets.length) continue;
+      const b = buckets[idx];
+      const d = Number(e.distanceKm) || 0;
+      const t = Number(e.timeMin) || 0;
+      b.distance += d;
+      b.timeMin += t;
+      if (e.rpe) {
+        const r = Number(e.rpe);
+        if (!Number.isNaN(r)) {
+          b.rpeSum += r;
+          b.rpeCount += 1;
+        }
+      }
+      if (e.hrZone) b.zoneCounts[e.hrZone] = (b.zoneCounts[e.hrZone] || 0) + 1;
+      b.runs += 1;
+    }
+    return buckets.map((b) => {
+      const pace = b.distance > 0 && b.timeMin > 0 ? b.timeMin / b.distance : null;
+      const dominantZone =
+        Object.entries(b.zoneCounts).sort((a, z) => z[1] - a[1])[0]?.[0] ?? "—";
+      return {
+        week: b.key,
+        distance: Number(b.distance.toFixed(1)),
+        timeMin: Math.round(b.timeMin),
+        pace: pace ? Number(pace.toFixed(2)) : null,
+        paceLabel: pace
+          ? `${Math.floor(pace)}:${String(Math.round((pace - Math.floor(pace)) * 60)).padStart(2, "0")}/km`
+          : "—",
+        rpe: b.rpeCount ? Number((b.rpeSum / b.rpeCount).toFixed(1)) : null,
+        zone: dominantZone,
+        runs: b.runs,
+      };
+    });
+  }, [log, weeks]);
+
+  const hasAny = data.some((d) => d.runs > 0);
+
+  return (
+    <Card className="border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-accent">
+            <Footprints className="h-4 w-4" /> Run Trends
+          </CardTitle>
+          <div className="flex gap-1 rounded-md border border-border/60 p-0.5">
+            {[4, 8].map((w) => (
+              <button
+                key={w}
+                type="button"
+                onClick={() => setWeeks(w as 4 | 8)}
+                className={`rounded px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider transition-colors ${
+                  weeks === w ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {w}w
+              </button>
+            ))}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {!hasAny ? (
+          <div className="rounded-md border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground">
+            Log a few runs to see your distance, pace, RPE, and zone trends here.
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-lg border border-border/60 p-3">
+              <div className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">
+                Weekly distance (km)
+              </div>
+              <ResponsiveContainer width="100%" height={160}>
+                <BarChart data={data} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="week" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 6,
+                      fontSize: 12,
+                    }}
+                    formatter={(v: number, _n, p: any) => [`${v} km · ${p.payload.timeMin} min`, "Distance"]}
+                  />
+                  <Bar dataKey="distance" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="rounded-lg border border-border/60 p-3">
+              <div className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">
+                Avg pace (min/km) — lower is faster
+              </div>
+              <ResponsiveContainer width="100%" height={160}>
+                <RLineChart data={data} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="week" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                  <YAxis
+                    domain={["auto", "auto"]}
+                    reversed
+                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 6,
+                      fontSize: 12,
+                    }}
+                    formatter={(_v: number, _n, p: any) => [p.payload.paceLabel, "Pace"]}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="pace"
+                    stroke="var(--accent)"
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                    connectNulls
+                  />
+                </RLineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="rounded-lg border border-border/60 p-3">
+              <div className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">
+                Avg RPE (1–10)
+              </div>
+              <ResponsiveContainer width="100%" height={160}>
+                <RLineChart data={data} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="week" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                  <YAxis domain={[0, 10]} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 6,
+                      fontSize: 12,
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="rpe"
+                    stroke="var(--primary)"
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                    connectNulls
+                  />
+                </RLineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="rounded-lg border border-border/60 p-3">
+              <div className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">
+                Weekly summary
+              </div>
+              <ul className="space-y-1 text-xs">
+                {data.map((d) => (
+                  <li
+                    key={d.week}
+                    className="flex items-center justify-between gap-2 border-b border-border/40 py-1 last:border-b-0"
+                  >
+                    <span className="text-muted-foreground">Wk {d.week}</span>
+                    <span className="flex-1 text-right text-foreground">
+                      {d.runs} run{d.runs === 1 ? "" : "s"} · {d.distance} km · {d.paceLabel}
+                    </span>
+                    <span className="w-16 shrink-0 text-right text-muted-foreground">
+                      RPE {d.rpe ?? "—"} · {d.zone}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function parseTargetReps(details: string): number | null {
   const m = details.match(/(\d+)\s*[×x]\s*(\d+)/);
   return m ? Number(m[2]) : null;
