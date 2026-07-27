@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Flame, Dumbbell, Apple, CheckCircle2, HeartPulse, Brain } from "lucide-react";
+import { Flame, Dumbbell, Apple, CheckCircle2, HeartPulse, Brain, Footprints } from "lucide-react";
 import { WorkoutPlan } from "@/components/dashboard/WorkoutPlan";
 import { MealPlan } from "@/components/dashboard/MealPlan";
 import { HabitTracker } from "@/components/dashboard/HabitTracker";
 import { RecoveryPlan } from "@/components/dashboard/RecoveryPlan";
 import { MindsetBoost } from "@/components/dashboard/MindsetBoost";
+import { RunningGuide } from "@/components/dashboard/RunningGuide";
 import { DailyQuote } from "@/components/dashboard/DailyQuote";
 import heroImg from "@/assets/hero-athlete.jpg";
 
@@ -70,9 +71,12 @@ function Index() {
       {/* Dashboard */}
       <main className="mx-auto max-w-6xl px-6 py-10">
         <Tabs defaultValue="workout" className="w-full">
-          <TabsList className="mb-8 grid h-auto w-full grid-cols-2 gap-1 bg-card p-1 md:grid-cols-5">
+          <TabsList className="mb-8 grid h-auto w-full grid-cols-2 gap-1 bg-card p-1 md:grid-cols-6">
             <TabsTrigger value="workout" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Dumbbell className="h-4 w-4" /> Workout
+            </TabsTrigger>
+            <TabsTrigger value="running" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Footprints className="h-4 w-4" /> Running
             </TabsTrigger>
             <TabsTrigger value="meals" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Apple className="h-4 w-4" /> Meals
@@ -89,6 +93,7 @@ function Index() {
           </TabsList>
 
           <TabsContent value="workout"><WorkoutPlan /></TabsContent>
+          <TabsContent value="running"><RunningGuide /></TabsContent>
           <TabsContent value="meals"><MealPlan /></TabsContent>
           <TabsContent value="habits"><HabitTracker /></TabsContent>
           <TabsContent value="recovery"><RecoveryPlan /></TabsContent>
