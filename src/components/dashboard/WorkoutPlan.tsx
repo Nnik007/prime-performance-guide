@@ -745,6 +745,8 @@ export function WorkoutPlan() {
         </div>
       </div>
 
+      <RunTrends log={runLog} />
+
       <div className="grid gap-4 md:grid-cols-2">
         {week.map((d) => (
           <Card key={d.day} className="border-border/60 transition-colors hover:border-primary/40">
