@@ -242,6 +242,8 @@ function RunLogger({
   const [timeMin, setTimeMin] = useState("");
   const [feel, setFeel] = useState<RunEntry["feel"]>("");
   const [notes, setNotes] = useState("");
+  const [rpe, setRpe] = useState("");
+  const [hrZone, setHrZone] = useState<string>("");
   const [saved, setSaved] = useState(false);
 
   const pace = useMemo(() => {
@@ -267,12 +269,16 @@ function RunLogger({
         timeMin,
         feel,
         notes,
+        rpe,
+        hrZone,
       },
     ]);
     setDistanceKm("");
     setTimeMin("");
     setFeel("");
     setNotes("");
+    setRpe("");
+    setHrZone("");
     setSaved(true);
     setTimeout(() => setSaved(false), 1200);
   };
