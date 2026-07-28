@@ -1,6 +1,59 @@
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Footprints, Zap, Timer, Mountain, Wind, Repeat, HeartPulse, Lightbulb } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Footprints, Zap, Timer, Mountain, Wind, Repeat, HeartPulse, Lightbulb, Trophy, Target, Sparkles, BatteryLow, BatteryMedium, BatteryFull, Check } from "lucide-react";
+
+const RUN_LOG_KEY = "forge-run-log";
+const GOALS_KEY = "forge-run-goals";
+const RECOVERY_KEY = "forge-run-recovery";
+
+type RunEntry = {
+  id: string;
+  ts: number;
+  day: string;
+  runTitle: string;
+  distanceKm: string;
+  timeMin: string;
+  feel: "great" | "solid" | "ok" | "rough" | "";
+  notes: string;
+  rpe?: string;
+  hrZone?: string;
+};
+
+type Goals = {
+  targetDistanceKm: string;
+  targetPaceMinPerKm: string;
+  targetWeeklyKm: string;
+};
+
+function paceString(distanceKm: number, timeMin: number) {
+  if (!distanceKm || !timeMin) return null;
+  const p = timeMin / distanceKm;
+  const m = Math.floor(p);
+  const s = Math.round((p - m) * 60);
+  return `${m}:${String(s).padStart(2, "0")} /km`;
+}
+
+function paceMinutes(distanceKm: number, timeMin: number): number | null {
+  if (!distanceKm || !timeMin) return null;
+  return timeMin / distanceKm;
+}
+
+function useLocalState<T>(key: string, initial: T) {
+  const [state, setState] = useState<T>(initial);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) setState(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, [key]);
+  useEffect(() => {
+    try { localStorage.setItem(key, JSON.stringify(state)); } catch { /* ignore */ }
+  }, [key, state]);
+  return [state, setState] as const;
+}
 
 const RUN_TYPES = [
   {
