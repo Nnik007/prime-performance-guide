@@ -85,13 +85,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Forge — Your Personal Training Dashboard" },
+      { name: "twitter:description", content: "Personalized weekly workout, nutrition, recovery, and mindset plan built around your goals." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/09b305b1-14c6-4b20-92e4-3fcf4bb76cd8/id-preview-f8c4765b--d4933606-bae2-46e6-9b11-f2a676f76f85.lovable.app-1785566711247.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/09b305b1-14c6-4b20-92e4-3fcf4bb76cd8/id-preview-f8c4765b--d4933606-bae2-46e6-9b11-f2a676f76f85.lovable.app-1785566711247.png" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
   shellComponent: RootShell,
