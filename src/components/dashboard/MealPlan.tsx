@@ -12,7 +12,7 @@ const macros = [
   { label: "Fats", value: "65 g", detail: "Hormone & recovery", icon: Droplet, color: "text-primary" },
 ];
 
-type DayPlan = {
+export type DayPlan = {
   day: string;
   focus: string;
   lunch: string;
@@ -21,7 +21,7 @@ type DayPlan = {
 };
 
 // 4-week rotation. Each week's 7 days cycle deterministically by ISO week number.
-const WEEKLY_ROTATIONS: DayPlan[][] = [
+export const WEEKLY_ROTATIONS: DayPlan[][] = [
   [
     { day: "Mon", focus: "Football night — carbs up", lunch: "Grilled chicken + basmati rice + roasted peppers & broccoli + olive oil", snack: "Greek yogurt + berries + honey + rice cake", dinner: "Salmon + sweet potato mash + sautéed spinach + lemon" },
     { day: "Tue", focus: "Gym (push)", lunch: "Lean beef stir-fry + jasmine rice + mixed veg", snack: "Whey shake + banana + 20 g almonds", dinner: "Turkey meatballs + wholegrain pasta + tomato sauce + side salad" },
@@ -69,7 +69,7 @@ const BATCH_TIPS = [
   { title: "Prep veg once", detail: "Wash + chop peppers, cucumbers, carrots on Sunday. Salads take 2 minutes all week." },
 ];
 
-function getWeekInfo() {
+export function getWeekInfo() {
   const now = new Date();
   // ISO week number
   const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
