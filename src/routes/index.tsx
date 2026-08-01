@@ -8,6 +8,7 @@ import { RecoveryPlan } from "@/components/dashboard/RecoveryPlan";
 import { MindsetBoost } from "@/components/dashboard/MindsetBoost";
 import { RunningGuide } from "@/components/dashboard/RunningGuide";
 import { DailyQuote } from "@/components/dashboard/DailyQuote";
+import { TodaySummary } from "@/components/dashboard/TodaySummary";
 import heroImg from "@/assets/hero-athlete.jpg";
 
 export const Route = createFileRoute("/")({
@@ -70,6 +71,9 @@ function Index() {
 
       {/* Dashboard */}
       <main className="mx-auto max-w-6xl px-6 py-10">
+        <div className="mb-8">
+          <TodaySummary />
+        </div>
         <Tabs defaultValue="workout" className="w-full">
           <TabsList className="mb-8 grid h-auto w-full grid-cols-2 gap-1 bg-card p-1 md:grid-cols-6">
             <TabsTrigger value="workout" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
