@@ -956,6 +956,10 @@ function DayHistory({ day, log }: { day: string; log: LogEntry[] }) {
 export function WorkoutPlan() {
   const [log, setLog] = useWorkoutLog();
   const [runLog, setRunLog] = useRunLog();
+  const todayName = new Date().toLocaleDateString("en-US", { weekday: "long" });
+  const [openDay, setOpenDay] = useState<string | null>(
+    () => week.find((d) => d.day === todayName)?.day ?? week[0].day,
+  );
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
@@ -972,17 +976,39 @@ export function WorkoutPlan() {
 
       <RunTrends log={runLog} />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {week.map((d) => (
-          <Card key={d.day} className="border-border/60 transition-colors hover:border-primary/40">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{d.day}</CardTitle>
-                <Badge variant="outline" className={typeStyles[d.type]}>
-                  {d.type.toUpperCase()}
-                </Badge>
-              </div>
-              {d.type !== "football" && (
+      <div className="grid gap-3 md:grid-cols-2">
+        {week.map((d) => {
+          const isOpen = openDay === d.day;
+          return (
+          <Card
+            key={d.day}
+            className={`border-border/60 transition-colors hover:border-primary/40 ${isOpen ? "border-primary/40 md:col-span-2" : ""}`}
+          >
+            <CardHeader className={isOpen ? "pb-3" : "py-3"}>
+              <button
+                type="button"
+                onClick={() => setOpenDay(isOpen ? null : d.day)}
+                aria-expanded={isOpen}
+                className="flex w-full items-center justify-between gap-2 text-left"
+              >
+                <CardTitle className="text-lg">
+                  {d.day}
+                  {d.day === todayName && (
+                    <span className="ml-2 text-[10px] font-semibold uppercase tracking-widest text-primary">
+                      Today
+                    </span>
+                  )}
+                </CardTitle>
+                <span className="flex items-center gap-2">
+                  <Badge variant="outline" className={typeStyles[d.type]}>
+                    {d.type.toUpperCase()}
+                  </Badge>
+                  <ChevronDown
+                    className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
+                  />
+                </span>
+              </button>
+              {isOpen && d.type !== "football" && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Trophy className="h-3.5 w-3.5" />
                   <span>{d.focus}</span>
@@ -990,6 +1016,7 @@ export function WorkoutPlan() {
                 </div>
               )}
             </CardHeader>
+            {isOpen && (
             <CardContent>
               {d.type === "football" ? (
                 <div className="flex items-center gap-2 text-base font-semibold text-accent">
@@ -1036,8 +1063,10 @@ export function WorkoutPlan() {
               )}
               {d.type === "gym" && <DayHistory day={d.day} log={log} />}
             </CardContent>
+            )}
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       <Card className="border-primary/30 bg-primary/5">
