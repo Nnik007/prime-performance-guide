@@ -23,7 +23,7 @@ import {
   CartesianGrid,
 } from "recharts";
 
-type Day = {
+export type Day = {
   day: string;
   focus: string;
   type: "gym" | "football" | "rest";
@@ -37,7 +37,7 @@ type Day = {
   };
 };
 
-const week: Day[] = [
+export const week: Day[] = [
   {
     day: "Monday",
     focus: "Football",
