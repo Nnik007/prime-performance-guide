@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Apple, Flame, Beef, Droplet, Wheat, CalendarDays, ChefHat, RefreshCw } from "lucide-react";
+import { Apple, Flame, Beef, Droplet, Wheat, CalendarDays, ChefHat, RefreshCw, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { GroceryList } from "./GroceryList";
@@ -122,6 +122,8 @@ const weekendOut = [
 export function MealPlan() {
   const { weekNo, monday } = useMemo(() => getWeekInfo(), []);
   const [offset, setOffset] = useState(0);
+  const todayShort = new Date().toLocaleDateString("en-US", { weekday: "short" });
+  const [openDay, setOpenDay] = useState<string | null>(todayShort);
   const activeWeek = weekNo + offset;
   const rotationIndex = ((activeWeek % WEEKLY_ROTATIONS.length) + WEEKLY_ROTATIONS.length) % WEEKLY_ROTATIONS.length;
   const plan = WEEKLY_ROTATIONS[rotationIndex];
@@ -185,15 +187,36 @@ export function MealPlan() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {plan.map((d) => (
-              <div key={d.day} className="rounded-lg border border-border/60 bg-card/60 p-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-bold">{d.day}</div>
-                  <Badge variant="outline" className="border-accent/30 bg-accent/10 text-[10px] text-accent">
-                    {d.focus}
-                  </Badge>
-                </div>
+          <div className="space-y-2">
+            {plan.map((d) => {
+              const isOpen = openDay === d.day;
+              return (
+              <div
+                key={d.day}
+                className={`rounded-lg border bg-card/60 p-3 transition-colors ${isOpen ? "border-primary/40" : "border-border/60"}`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenDay(isOpen ? null : d.day)}
+                  aria-expanded={isOpen}
+                  className="flex w-full items-center justify-between gap-2 text-left"
+                >
+                  <div className="text-sm font-bold">
+                    {d.day}
+                    {d.day === todayShort && (
+                      <span className="ml-2 text-[10px] font-semibold uppercase tracking-widest text-primary">Today</span>
+                    )}
+                  </div>
+                  <span className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-accent/30 bg-accent/10 text-[10px] text-accent">
+                      {d.focus}
+                    </Badge>
+                    <ChevronDown
+                      className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  </span>
+                </button>
+                {isOpen && (
                 <dl className="mt-3 space-y-2 text-sm">
                   <div>
                     <dt className="text-[10px] font-semibold uppercase tracking-widest text-primary">Lunch · ≈850 kcal</dt>
@@ -208,8 +231,10 @@ export function MealPlan() {
                     <dd className="text-muted-foreground">{d.dinner}</dd>
                   </div>
                 </dl>
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>
