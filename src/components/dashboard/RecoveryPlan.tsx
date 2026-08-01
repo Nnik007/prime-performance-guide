@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { HeartPulse, Moon, Waves } from "lucide-react";
+import { HeartPulse, Moon, Waves, ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 const days = [
   { day: "Mon", after: "Football", protocol: "10-min cool-down jog + full-body static stretch (hips, calves, hamstrings). Cold shower. Foam roll quads 3 min." },
@@ -46,6 +47,8 @@ const pillars = [
 ];
 
 export function RecoveryPlan() {
+  const todayShort = new Date().toLocaleDateString("en-US", { weekday: "short" });
+  const [openDay, setOpenDay] = useState<string | null>(todayShort);
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
@@ -93,16 +96,35 @@ export function RecoveryPlan() {
           <CardTitle className="text-lg">Daily Recovery Protocol</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {days.map((d) => (
-              <div key={d.day} className="flex gap-4 rounded-md border border-border/50 bg-muted/30 p-3">
-                <div className="w-12 shrink-0">
-                  <div className="text-sm font-bold text-primary">{d.day}</div>
-                  <div className="text-xs text-muted-foreground">{d.after}</div>
+          <div className="space-y-2">
+            {days.map((d) => {
+              const isOpen = openDay === d.day;
+              return (
+                <div
+                  key={d.day}
+                  className={`rounded-md border bg-muted/30 p-3 transition-colors ${isOpen ? "border-primary/40" : "border-border/50"}`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenDay(isOpen ? null : d.day)}
+                    aria-expanded={isOpen}
+                    className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-left"
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span className="text-sm font-bold text-primary">{d.day}</span>
+                      {d.day === todayShort && (
+                        <span className="text-[10px] font-semibold uppercase tracking-widest text-primary">Today</span>
+                      )}
+                      <span className="truncate text-xs text-muted-foreground">{d.after}</span>
+                    </div>
+                    <ChevronDown
+                      className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {isOpen && <p className="mt-2 text-sm text-muted-foreground">{d.protocol}</p>}
                 </div>
-                <p className="text-sm text-muted-foreground">{d.protocol}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>
