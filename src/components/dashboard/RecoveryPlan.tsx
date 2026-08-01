@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { HeartPulse, Moon, Waves, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
-const days = [
+export const days = [
   { day: "Mon", after: "Football", protocol: "10-min cool-down jog + full-body static stretch (hips, calves, hamstrings). Cold shower. Foam roll quads 3 min." },
   { day: "Tue", after: "Gym — Push", protocol: "5 min easy bike. Stretch chest & shoulders 5 min. 10 min screens-off wind-down." },
   { day: "Wed", after: "Gym — Legs", protocol: "Contrast shower (30s cold / 60s warm × 4). Elevate legs 10 min. Extra 300 ml water + electrolytes. Sleep 8+ hrs." },
