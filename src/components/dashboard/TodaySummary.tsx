@@ -1,11 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dumbbell, Apple, HeartPulse, Footprints, CalendarCheck, Moon } from "lucide-react";
+import { Dumbbell, Apple, HeartPulse, Footprints, CalendarCheck, Moon, ChevronDown } from "lucide-react";
+import { useState } from "react";
 import { week } from "./WorkoutPlan";
 import { WEEKLY_ROTATIONS, getWeekInfo } from "./MealPlan";
 import { days as recoveryDays } from "./RecoveryPlan";
 
 export function TodaySummary() {
+  const [open, setOpen] = useState(true);
   const now = new Date();
   const long = now.toLocaleDateString("en-US", { weekday: "long" });
   const short = now.toLocaleDateString("en-US", { weekday: "short" });
@@ -16,12 +18,17 @@ export function TodaySummary() {
   const meal = WEEKLY_ROTATIONS[rotationIndex].find((d) => d.day === short);
   const recovery = recoveryDays.find((d) => d.day === short);
 
-  const dateLabel = now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+  const dateLabel = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
   return (
     <Card className="border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card">
       <CardHeader className="pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="flex w-full flex-wrap items-center justify-between gap-2 text-left"
+        >
           <div className="flex items-center gap-2">
             <CalendarCheck className="h-5 w-5 text-primary" />
             <div>
@@ -29,13 +36,19 @@ export function TodaySummary() {
               <p className="text-xs text-muted-foreground">{dateLabel}</p>
             </div>
           </div>
-          {workout && (
-            <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
-              {workout.type === "football" ? "Football day" : workout.type === "rest" ? "Rest day" : "Gym day"}
-            </Badge>
-          )}
-        </div>
+          <div className="flex items-center gap-2">
+            {workout && (
+              <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
+                {workout.type === "football" ? "Football day" : workout.type === "rest" ? "Rest day" : "Gym day"}
+              </Badge>
+            )}
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+            />
+          </div>
+        </button>
       </CardHeader>
+      {open && (
       <CardContent className="grid gap-4 md:grid-cols-3">
         {/* Training */}
         <div className="rounded-lg border border-border/60 bg-card/60 p-4">
@@ -106,6 +119,7 @@ export function TodaySummary() {
           </div>
         </div>
       </CardContent>
+      )}
     </Card>
   );
 }
