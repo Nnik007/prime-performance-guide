@@ -996,21 +996,20 @@ export function WorkoutPlan() {
   const [openDay, setOpenDay] = useState<string | null>(
     () => week.find((d) => d.day === todayName)?.day ?? week[0].day,
   );
+  const [trendsOpen, setTrendsOpen] = useState(false);
   return (
     <div className="space-y-6">
-      <div className="flex items-start gap-3">
-        <div className="rounded-lg bg-primary/15 p-2.5">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3">
+        <div className="shrink-0 rounded-lg bg-primary/15 p-2.5">
           <Dumbbell className="h-5 w-5 text-primary" />
         </div>
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Weekly Training Plan</h2>
+        <div className="min-w-0">
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Weekly Training Plan</h2>
           <p className="text-sm text-muted-foreground">
-            Hybrid athlete build — strength, power, and conditioning across four gym days, wrapped around your football sessions.
+            Hybrid build — tap a day to open it.
           </p>
         </div>
       </div>
-
-      <RunTrends log={runLog} />
 
       <div className="grid gap-3 md:grid-cols-2">
         {week.map((d) => {
