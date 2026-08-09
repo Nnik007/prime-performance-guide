@@ -771,10 +771,45 @@ function SuggestionBadge({ suggestion }: { suggestion: Suggestion }) {
       <Icon className="mt-0.5 h-3 w-3 shrink-0" />
       <div className="flex-1 leading-snug">
         <span className="font-semibold uppercase tracking-wider">{config.label}:</span>{" "}
-        {suggestion.kind === "start"
-          ? suggestion.note
-          : `${suggestion.weight} kg × ${suggestion.reps} · ${suggestion.note}`}
+        {`${suggestion.weight} kg × ${suggestion.reps} · ${suggestion.note}`}
       </div>
+    </div>
+  );
+}
+
+function AltList({ alternatives }: { alternatives: string[] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-1">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="text-[11px] font-semibold uppercase tracking-wider text-accent hover:underline"
+      >
+        {open ? "Hide alternatives" : `Alternatives (${alternatives.length})`}
+      </button>
+      {open && (
+        <div className="mt-1 text-xs text-muted-foreground">{alternatives.join(" · ")}</div>
+      )}
+    </div>
+  );
+}
+
+function RecoveryNote({ after, protocol }: { after: string; protocol: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-3 rounded-md border border-border/60 bg-muted/30 p-3">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+      >
+        <HeartPulse className="h-3.5 w-3.5 shrink-0 text-accent" />
+        <span className="min-w-0 flex-1 truncate">Recovery after {after}</span>
+        <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && <p className="mt-1.5 text-sm text-muted-foreground">{protocol}</p>}
     </div>
   );
 }
