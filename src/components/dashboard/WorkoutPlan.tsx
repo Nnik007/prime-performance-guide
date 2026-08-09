@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Dumbbell, Trophy, History, ChevronDown, ChevronUp, Check, TrendingUp, TrendingDown, Target, Footprints } from "lucide-react";
+import { Dumbbell, Trophy, History, ChevronDown, ChevronUp, Check, TrendingUp, TrendingDown, Target, Footprints, HeartPulse } from "lucide-react";
+import { days as recoveryDays } from "./RecoveryPlan";
 import {
   ResponsiveContainer,
   BarChart,
@@ -1062,6 +1063,19 @@ export function WorkoutPlan() {
                 </div>
               )}
               {d.type === "gym" && <DayHistory day={d.day} log={log} />}
+              {(() => {
+                const rec = recoveryDays.find((r) => r.day === d.day.slice(0, 3));
+                if (!rec) return null;
+                return (
+                  <div className="mt-3 rounded-md border border-border/60 bg-muted/30 p-3">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <HeartPulse className="h-3.5 w-3.5 text-accent" />
+                      Recovery after {rec.after}
+                    </div>
+                    <p className="mt-1.5 text-sm text-muted-foreground">{rec.protocol}</p>
+                  </div>
+                );
+              })()}
             </CardContent>
             )}
           </Card>

@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Flame, Dumbbell, Apple, CheckCircle2, HeartPulse, Brain, Footprints } from "lucide-react";
+import { Flame, Dumbbell, Apple, CheckCircle2, Brain, Footprints } from "lucide-react";
 import { WorkoutPlan } from "@/components/dashboard/WorkoutPlan";
 import { MealPlan } from "@/components/dashboard/MealPlan";
 import { HabitTracker } from "@/components/dashboard/HabitTracker";
-import { RecoveryPlan } from "@/components/dashboard/RecoveryPlan";
+import { RecoveryEssentials } from "@/components/dashboard/RecoveryPlan";
 import { MindsetBoost } from "@/components/dashboard/MindsetBoost";
 import { RunningGuide } from "@/components/dashboard/RunningGuide";
 import { DailyQuote } from "@/components/dashboard/DailyQuote";
@@ -75,9 +75,9 @@ function Index() {
           <TodaySummary />
         </div>
         <Tabs defaultValue="workout" className="w-full">
-          <TabsList className="mb-8 grid h-auto w-full grid-cols-2 gap-1 bg-card p-1 md:grid-cols-6">
+          <TabsList className="mb-8 grid h-auto w-full grid-cols-2 gap-1 bg-card p-1 md:grid-cols-5">
             <TabsTrigger value="workout" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Dumbbell className="h-4 w-4" /> Workout
+              <Dumbbell className="h-4 w-4" /> Training
             </TabsTrigger>
             <TabsTrigger value="running" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Footprints className="h-4 w-4" /> Running
@@ -88,19 +88,18 @@ function Index() {
             <TabsTrigger value="habits" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <CheckCircle2 className="h-4 w-4" /> Tracker
             </TabsTrigger>
-            <TabsTrigger value="recovery" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <HeartPulse className="h-4 w-4" /> Recovery
-            </TabsTrigger>
             <TabsTrigger value="mindset" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Brain className="h-4 w-4" /> Mindset
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="workout"><WorkoutPlan /></TabsContent>
+          <TabsContent value="workout" className="space-y-8">
+            <WorkoutPlan />
+            <RecoveryEssentials />
+          </TabsContent>
           <TabsContent value="running"><RunningGuide /></TabsContent>
           <TabsContent value="meals"><MealPlan /></TabsContent>
           <TabsContent value="habits"><HabitTracker /></TabsContent>
-          <TabsContent value="recovery"><RecoveryPlan /></TabsContent>
           <TabsContent value="mindset"><MindsetBoost /></TabsContent>
         </Tabs>
       </main>

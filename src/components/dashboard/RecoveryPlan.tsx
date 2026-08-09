@@ -13,7 +13,7 @@ export const days = [
   { day: "Sun", after: "Rest", protocol: "Full mobility flow 20 min. Optional easy walk 30–45 min. Meal prep. Lights out by 22:30." },
 ];
 
-const pillars = [
+export const pillars = [
   {
     icon: Moon,
     title: "Sleep",
@@ -45,6 +45,56 @@ const pillars = [
     ],
   },
 ];
+
+export function RecoveryEssentials() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-lg bg-accent/15 p-2.5">
+          <HeartPulse className="h-5 w-5 text-accent" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold tracking-tight">Recovery Essentials</h3>
+          <p className="text-sm text-muted-foreground">
+            5 hard sessions a week is high load — recovery is the multiplier. Each day's protocol sits inside that day above.
+          </p>
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        {pillars.map((p) => (
+          <Card key={p.title} className="border-border/60">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <p.icon className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-base">{p.title}</CardTitle>
+                </div>
+                <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary text-xs">
+                  {p.target}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-1.5 text-sm text-muted-foreground">
+                {p.tips.map((t) => (
+                  <li key={t} className="flex gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                    <span>{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card className="border-primary/30 bg-primary/5">
+        <CardContent className="pt-6 text-sm text-muted-foreground">
+          <span className="font-semibold text-foreground">Deload every 5–6 weeks:</span> drop gym volume by ~40% for one week. It's not lost progress — it's how your body locks in the gains.
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export function RecoveryPlan() {
   const todayShort = new Date().toLocaleDateString("en-US", { weekday: "short" });
