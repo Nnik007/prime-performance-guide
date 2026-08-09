@@ -83,12 +83,12 @@ function Index() {
         </div>
         <Tabs defaultValue="workout" className="w-full">
           <div className="sticky top-0 z-20 -mx-5 mb-5 border-b border-border/60 bg-background/90 px-5 py-2 backdrop-blur md:-mx-6 md:px-6">
-            <TabsList className="flex h-auto w-full gap-1 overflow-x-auto bg-card p-1">
+            <TabsList className="grid h-auto w-full grid-cols-5 gap-1 bg-card p-1">
               {tabs.map(({ value, label, Icon }) => (
                 <TabsTrigger
                   key={value}
                   value={value}
-                  className="flex flex-1 shrink-0 items-center justify-center gap-1.5 py-2 text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground md:text-sm"
+                  className="flex min-w-0 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-[10px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground md:flex-row md:gap-1.5 md:py-2 md:text-sm"
                 >
                   <Icon className="h-4 w-4 shrink-0" /> {label}
                 </TabsTrigger>
