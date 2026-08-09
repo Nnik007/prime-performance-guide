@@ -1065,10 +1065,7 @@ export function WorkoutPlan() {
                     <span className="font-medium text-foreground">{b.name}</span>
                     <span className="text-xs text-muted-foreground">{b.details}</span>
                     {b.alternatives && b.alternatives.length > 0 && (
-                      <span className="mt-1 text-xs text-muted-foreground">
-                        <span className="font-semibold text-accent">Alt:</span>{" "}
-                        {b.alternatives.join(" · ")}
-                      </span>
+                      <AltList alternatives={b.alternatives} />
                     )}
                     {d.type === "gym" && (
                       <ExerciseLogger
@@ -1100,15 +1097,7 @@ export function WorkoutPlan() {
               {(() => {
                 const rec = recoveryDays.find((r) => r.day === d.day.slice(0, 3));
                 if (!rec) return null;
-                return (
-                  <div className="mt-3 rounded-md border border-border/60 bg-muted/30 p-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      <HeartPulse className="h-3.5 w-3.5 text-accent" />
-                      Recovery after {rec.after}
-                    </div>
-                    <p className="mt-1.5 text-sm text-muted-foreground">{rec.protocol}</p>
-                  </div>
-                );
+                return <RecoveryNote after={rec.after} protocol={rec.protocol} />;
               })()}
             </CardContent>
             )}
@@ -1117,9 +1106,27 @@ export function WorkoutPlan() {
         })}
       </div>
 
+      <div>
+        <button
+          type="button"
+          onClick={() => setTrendsOpen((o) => !o)}
+          aria-expanded={trendsOpen}
+          className="flex w-full items-center gap-2 rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider text-accent"
+        >
+          <Footprints className="h-4 w-4 shrink-0" />
+          <span className="min-w-0 flex-1 truncate">Run trends</span>
+          <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${trendsOpen ? "rotate-180" : ""}`} />
+        </button>
+        {trendsOpen && (
+          <div className="mt-3">
+            <RunTrends log={runLog} />
+          </div>
+        )}
+      </div>
+
       <Card className="border-primary/30 bg-primary/5">
-        <CardContent className="pt-6 text-sm text-muted-foreground">
-          <span className="font-semibold text-foreground">Coach note:</span> With 5 years experience, keep the last rep of each working set 1–2 reps short of failure. Progress load or reps weekly. On football days, don't chase extra gym volume — recover instead.
+        <CardContent className="pt-6 text-xs text-muted-foreground">
+          <span className="font-semibold text-foreground">Coach note:</span> Keep the last rep 1–2 short of failure. Progress load or reps weekly. Don't add gym volume on football days.
         </CardContent>
       </Card>
     </div>
