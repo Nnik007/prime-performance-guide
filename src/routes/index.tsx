@@ -22,6 +22,14 @@ const stats = [
   { label: "Weekly load", value: "5 sessions", sub: "2 football · 3 gym" },
 ];
 
+const tabs = [
+  { value: "workout", label: "Training", Icon: Dumbbell },
+  { value: "running", label: "Running", Icon: Footprints },
+  { value: "meals", label: "Meals", Icon: Apple },
+  { value: "habits", label: "Tracker", Icon: CheckCircle2 },
+  { value: "mindset", label: "Mindset", Icon: Brain },
+];
+
 function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -35,32 +43,31 @@ function Index() {
           className="absolute inset-0 h-full w-full object-cover opacity-40"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/40" />
-        <div className="relative mx-auto max-w-6xl px-6 py-16 md:py-20">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-            <Flame className="h-4 w-4" />
+        <div className="relative mx-auto max-w-6xl px-5 py-9 md:px-6 md:py-14">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+            <Flame className="h-3.5 w-3.5" />
             Forge Protocol
           </div>
-          <h1 className="mt-4 max-w-3xl text-4xl font-black tracking-tight md:text-6xl">
-            Leaner, stronger,<br />
+          <h1 className="mt-2.5 max-w-3xl text-3xl font-black leading-[1.05] tracking-tight md:text-5xl">
+            Leaner, stronger,{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               built around your week.
             </span>
           </h1>
-          <p className="mt-4 max-w-xl text-sm text-muted-foreground md:text-base">
-            A complete training, nutrition, recovery, and mindset system tailored to your football schedule and 5 years in the gym.
+          <p className="mt-2.5 max-w-md text-sm text-muted-foreground">
+            Training, nutrition, recovery and mindset — tuned to your football week.
           </p>
 
-          <div className="mt-8 grid max-w-3xl grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="mt-5 max-w-3xl divide-y divide-border/50 overflow-hidden rounded-xl border border-border/60 bg-card/50 backdrop-blur sm:flex sm:divide-x sm:divide-y-0">
             {stats.map((s) => (
-              <div
-                key={s.label}
-                className="rounded-lg border border-border/60 bg-card/60 p-3 backdrop-blur"
-              >
+              <div key={s.label} className="flex items-baseline justify-between gap-3 px-3.5 py-2.5 sm:flex-1 sm:flex-col sm:items-start sm:gap-0.5">
                 <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                   {s.label}
                 </div>
-                <div className="mt-1 text-lg font-bold text-foreground">{s.value}</div>
-                {s.sub && <div className="text-xs text-muted-foreground">{s.sub}</div>}
+                <div className="flex items-baseline gap-2">
+                  <span className="text-base font-bold text-foreground sm:text-lg">{s.value}</span>
+                  {s.sub && <span className="text-xs text-muted-foreground">{s.sub}</span>}
+                </div>
               </div>
             ))}
           </div>
@@ -70,30 +77,26 @@ function Index() {
       </header>
 
       {/* Dashboard */}
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-8">
+      <main className="mx-auto max-w-6xl px-5 py-6 md:px-6 md:py-10">
+        <div className="mb-5">
           <TodaySummary />
         </div>
         <Tabs defaultValue="workout" className="w-full">
-          <TabsList className="mb-8 grid h-auto w-full grid-cols-2 gap-1 bg-card p-1 md:grid-cols-5">
-            <TabsTrigger value="workout" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Dumbbell className="h-4 w-4" /> Training
-            </TabsTrigger>
-            <TabsTrigger value="running" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Footprints className="h-4 w-4" /> Running
-            </TabsTrigger>
-            <TabsTrigger value="meals" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Apple className="h-4 w-4" /> Meals
-            </TabsTrigger>
-            <TabsTrigger value="habits" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <CheckCircle2 className="h-4 w-4" /> Tracker
-            </TabsTrigger>
-            <TabsTrigger value="mindset" className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Brain className="h-4 w-4" /> Mindset
-            </TabsTrigger>
-          </TabsList>
+          <div className="sticky top-0 z-20 -mx-5 mb-5 border-b border-border/60 bg-background/90 px-5 py-2 backdrop-blur md:-mx-6 md:px-6">
+            <TabsList className="grid h-auto w-full grid-cols-5 gap-1 bg-card p-1">
+              {tabs.map(({ value, label, Icon }) => (
+                <TabsTrigger
+                  key={value}
+                  value={value}
+                  className="flex min-w-0 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-[10px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground md:flex-row md:gap-1.5 md:py-2 md:text-sm"
+                >
+                  <Icon className="h-4 w-4 shrink-0" /> {label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
 
-          <TabsContent value="workout" className="space-y-8">
+          <TabsContent value="workout" className="space-y-6">
             <WorkoutPlan />
             <RecoveryEssentials />
           </TabsContent>
