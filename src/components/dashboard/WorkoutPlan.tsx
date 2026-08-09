@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Dumbbell, Trophy, History, ChevronDown, ChevronUp, Check, TrendingUp, TrendingDown, Target, Footprints } from "lucide-react";
+import { Dumbbell, Trophy, History, ChevronDown, ChevronUp, Check, TrendingUp, TrendingDown, Target, Footprints, HeartPulse } from "lucide-react";
+import { days as recoveryDays } from "./RecoveryPlan";
 import {
   ResponsiveContainer,
   BarChart,
