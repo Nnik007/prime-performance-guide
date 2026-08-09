@@ -742,7 +742,7 @@ function suggestNext(
 }
 
 function SuggestionBadge({ suggestion }: { suggestion: Suggestion }) {
-  if (!suggestion) return null;
+  if (!suggestion || suggestion.kind === "start") return null;
   const config = {
     overload: {
       cls: "border-primary/40 bg-primary/10 text-primary",
