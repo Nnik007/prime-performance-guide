@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Flame, Dumbbell, Apple, CheckCircle2, Brain, Footprints } from "lucide-react";
+import { Activity, Dumbbell, Apple, CheckCircle2, Brain, Footprints } from "lucide-react";
 import { WorkoutPlan } from "@/components/dashboard/WorkoutPlan";
 import { MealPlan } from "@/components/dashboard/MealPlan";
 import { HabitTracker } from "@/components/dashboard/HabitTracker";
@@ -9,20 +9,32 @@ import { MindsetBoost } from "@/components/dashboard/MindsetBoost";
 import { RunningGuide } from "@/components/dashboard/RunningGuide";
 import { DailyQuote } from "@/components/dashboard/DailyQuote";
 import { TodaySummary } from "@/components/dashboard/TodaySummary";
-import heroImg from "@/assets/hero-athlete.jpg";
+import { HealthHub } from "@/components/dashboard/HealthHub";
 
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { title: "Forge — Hybrid Training Hub with Apple Health Sync" },
+      {
+        name: "description",
+        content:
+          "Personal hybrid-athlete dashboard: weekly training, meals, run plans and habit tracking, synced with Apple Health metrics.",
+      },
+      { property: "og:title", content: "Forge — Hybrid Training Hub with Apple Health Sync" },
+      {
+        property: "og:description",
+        content:
+          "Weekly training, meals, running and habit tracking in one dashboard, powered by your Apple Health data.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
 });
 
-const stats = [
-  { label: "Current", value: "76.5 kg", sub: "16% BF" },
-  { label: "Target", value: "72 kg", sub: "10–12% BF" },
-  { label: "Height", value: "167 cm", sub: "" },
-  { label: "Weekly load", value: "5 sessions", sub: "2 football · 3 gym" },
-];
-
 const tabs = [
+  { value: "health", label: "Health", Icon: Activity },
   { value: "workout", label: "Training", Icon: Dumbbell },
   { value: "running", label: "Running", Icon: Footprints },
   { value: "meals", label: "Meals", Icon: Apple },
@@ -33,62 +45,46 @@ const tabs = [
 function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Hero */}
-      <header className="relative overflow-hidden border-b border-border">
-        <img
-          src={heroImg}
-          alt=""
-          width={1600}
-          height={900}
-          className="absolute inset-0 h-full w-full object-cover opacity-40"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/40" />
-        <div className="relative mx-auto max-w-6xl px-5 py-9 md:px-6 md:py-14">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
-            <Flame className="h-3.5 w-3.5" />
-            Forge Protocol
+      <div
+        className="pointer-events-none fixed inset-x-0 top-0 h-72 opacity-60"
+        style={{ background: "radial-gradient(60% 100% at 20% 0%, var(--primary), transparent 70%)" }}
+        aria-hidden
+      />
+
+      {/* Header */}
+      <header className="relative border-b border-border/60">
+        <div className="mx-auto max-w-6xl px-5 py-7 md:px-6 md:py-10">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-accent">
+            <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+            Forge · Hybrid Protocol
           </div>
-          <h1 className="mt-2.5 max-w-3xl text-3xl font-black leading-[1.05] tracking-tight md:text-5xl">
-            Leaner, stronger,{" "}
+          <h1 className="mt-3 max-w-2xl font-display text-3xl font-bold leading-[1.05] md:text-5xl">
+            Train, eat, recover —{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              built around your week.
+              measured by your own body data.
             </span>
           </h1>
-          <p className="mt-2.5 max-w-md text-sm text-muted-foreground">
-            Training, nutrition, recovery and mindset — tuned to your football week.
+          <p className="mt-3 max-w-md text-sm text-muted-foreground">
+            One dashboard for your football week, gym blocks, runs and meals — with Apple Health metrics
+            flowing in from your iPhone.
           </p>
-
-          <div className="mt-5 max-w-3xl divide-y divide-border/50 overflow-hidden rounded-xl border border-border/60 bg-card/50 backdrop-blur sm:flex sm:divide-x sm:divide-y-0">
-            {stats.map((s) => (
-              <div key={s.label} className="flex items-baseline justify-between gap-3 px-3.5 py-2.5 sm:flex-1 sm:flex-col sm:items-start sm:gap-0.5">
-                <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  {s.label}
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-base font-bold text-foreground sm:text-lg">{s.value}</span>
-                  {s.sub && <span className="text-xs text-muted-foreground">{s.sub}</span>}
-                </div>
-              </div>
-            ))}
-          </div>
-
           <DailyQuote />
         </div>
       </header>
 
       {/* Dashboard */}
-      <main className="mx-auto max-w-6xl px-5 py-6 md:px-6 md:py-10">
+      <main className="relative mx-auto max-w-6xl px-5 py-6 md:px-6 md:py-10">
         <div className="mb-5">
           <TodaySummary />
         </div>
-        <Tabs defaultValue="workout" className="w-full">
+        <Tabs defaultValue="health" className="w-full">
           <div className="sticky top-0 z-20 -mx-5 mb-5 border-b border-border/60 bg-background/90 px-5 py-2 backdrop-blur md:-mx-6 md:px-6">
-            <TabsList className="grid h-auto w-full grid-cols-5 gap-1 bg-card p-1">
+            <TabsList className="grid h-auto w-full grid-cols-6 gap-1 rounded-xl bg-card/80 p-1">
               {tabs.map(({ value, label, Icon }) => (
                 <TabsTrigger
                   key={value}
                   value={value}
-                  className="flex min-w-0 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-[10px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground md:flex-row md:gap-1.5 md:py-2 md:text-sm"
+                  className="flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1.5 text-[10px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground md:flex-row md:gap-1.5 md:py-2 md:text-sm"
                 >
                   <Icon className="h-4 w-4 shrink-0" /> {label}
                 </TabsTrigger>
@@ -96,6 +92,7 @@ function Index() {
             </TabsList>
           </div>
 
+          <TabsContent value="health"><HealthHub /></TabsContent>
           <TabsContent value="workout" className="space-y-6">
             <WorkoutPlan />
             <RecoveryEssentials />
@@ -107,8 +104,8 @@ function Index() {
         </Tabs>
       </main>
 
-      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        Forge Protocol · Consistency compounds. Show up.
+      <footer className="relative border-t border-border/60 py-8 text-center text-xs text-muted-foreground">
+        Forge · Consistency compounds. Show up.
       </footer>
     </div>
   );
