@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      health_days: {
+        Row: {
+          active_energy_kcal: number | null
+          created_at: string
+          day: string
+          distance_km: number | null
+          exercise_minutes: number | null
+          hrv_ms: number | null
+          resting_hr: number | null
+          sleep_hours: number | null
+          source: string
+          steps: number | null
+          updated_at: string
+          vo2max: number | null
+          waist_cm: number | null
+          weight_kg: number | null
+          workout_minutes: number | null
+        }
+        Insert: {
+          active_energy_kcal?: number | null
+          created_at?: string
+          day: string
+          distance_km?: number | null
+          exercise_minutes?: number | null
+          hrv_ms?: number | null
+          resting_hr?: number | null
+          sleep_hours?: number | null
+          source?: string
+          steps?: number | null
+          updated_at?: string
+          vo2max?: number | null
+          waist_cm?: number | null
+          weight_kg?: number | null
+          workout_minutes?: number | null
+        }
+        Update: {
+          active_energy_kcal?: number | null
+          created_at?: string
+          day?: string
+          distance_km?: number | null
+          exercise_minutes?: number | null
+          hrv_ms?: number | null
+          resting_hr?: number | null
+          sleep_hours?: number | null
+          source?: string
+          steps?: number | null
+          updated_at?: string
+          vo2max?: number | null
+          waist_cm?: number | null
+          weight_kg?: number | null
+          workout_minutes?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
