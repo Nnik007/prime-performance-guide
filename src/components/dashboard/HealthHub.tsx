@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -89,8 +89,10 @@ export function HealthHub() {
     enabled: showToken,
   });
 
-  const endpoint =
-    typeof window === "undefined" ? "/api/public/health-sync" : `${window.location.origin}/api/public/health-sync`;
+  const [endpoint, setEndpoint] = useState("/api/public/health-sync");
+  useEffect(() => {
+    setEndpoint(`${window.location.origin}/api/public/health-sync`);
+  }, []);
 
   const latest = days[days.length - 1];
   const last7 = days.slice(-7);

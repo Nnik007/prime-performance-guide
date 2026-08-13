@@ -1,13 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dumbbell, Apple, HeartPulse, Footprints, CalendarCheck, Moon, ChevronDown } from "lucide-react";
+import { Dumbbell, Apple, HeartPulse, Footprints, CalendarCheck, Moon, ChevronDown, Scale, Activity } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getHealthDays } from "@/lib/health.functions";
 import { week } from "./WorkoutPlan";
 import { WEEKLY_ROTATIONS, getWeekInfo } from "./MealPlan";
 import { days as recoveryDays } from "./RecoveryPlan";
 
 export function TodaySummary() {
   const [open, setOpen] = useState(true);
+  const { data: healthDays = [] } = useQuery({
+    queryKey: ["health-days"],
+    queryFn: () => getHealthDays(),
+  });
+  const latest = healthDays[healthDays.length - 1];
+  const metrics = [
+    { label: "Weight", value: latest?.weight_kg != null ? `${Number(latest.weight_kg).toFixed(1)} kg` : "—", Icon: Scale },
+    { label: "Steps", value: latest?.steps != null ? String(latest.steps) : "—", Icon: Footprints },
+    { label: "Sleep", value: latest?.sleep_hours != null ? `${Number(latest.sleep_hours).toFixed(1)} h` : "—", Icon: Moon },
+    { label: "Resting HR", value: latest?.resting_hr != null ? `${latest.resting_hr} bpm` : "—", Icon: HeartPulse },
+  ];
   const now = new Date();
   const long = now.toLocaleDateString("en-US", { weekday: "long" });
   const short = now.toLocaleDateString("en-US", { weekday: "short" });
@@ -49,6 +62,24 @@ export function TodaySummary() {
         </button>
       </CardHeader>
       {open && (
+      <>
+      <div className="mx-6 mb-3 rounded-2xl border border-border/60 bg-background/50 p-3">
+        <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <Activity className="h-3.5 w-3.5 text-primary" />
+          {latest ? `Apple Health · synced ${new Date(`${latest.day}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : "Apple Health · set up the Shortcut in the Health tab"}
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {metrics.map(({ label, value, Icon }) => (
+            <div key={label} className="rounded-xl border border-border/50 bg-card/70 p-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{label}</span>
+                <Icon className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div className="mt-1 font-display text-lg font-bold leading-none">{value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
       <CardContent className="grid divide-y divide-border/50 md:grid-cols-3 md:divide-x md:divide-y-0">
         {/* Training */}
         <div className="py-3.5 md:px-4 md:py-0 md:first:pl-0">
@@ -119,6 +150,7 @@ export function TodaySummary() {
           </div>
         </div>
       </CardContent>
+      </>
       )}
     </Card>
   );

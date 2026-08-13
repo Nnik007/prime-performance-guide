@@ -1000,7 +1000,7 @@ export function WorkoutPlan() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3">
-        <div className="shrink-0 rounded-lg bg-primary/15 p-2.5">
+        <div className="shrink-0 rounded-xl bg-primary/15 p-2.5">
           <Dumbbell className="h-5 w-5 text-primary" />
         </div>
         <div className="min-w-0">
