@@ -16,6 +16,9 @@ import {
   Copy,
   Check,
   Gauge,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -78,9 +81,10 @@ export function HealthHub() {
   const [copied, setCopied] = useState<string | null>(null);
   const [showToken, setShowToken] = useState(false);
 
-  const { data: days = [], isLoading, refetch, isFetching } = useQuery({
+  const { data: days = [], isLoading, refetch, isFetching, isError, error, dataUpdatedAt } = useQuery({
     queryKey: ["health-days"],
     queryFn: () => getHealthDays(),
+    retry: 1,
   });
 
   const setup = useQuery({
@@ -93,6 +97,10 @@ export function HealthHub() {
   useEffect(() => {
     setEndpoint(`${window.location.origin}/api/public/health-sync`);
   }, []);
+
+  // Time-relative labels are computed after mount to keep SSR output stable.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const latest = days[days.length - 1];
   const last7 = days.slice(-7);
@@ -130,6 +138,70 @@ export function HealthHub() {
 
   const body = `{"weight_kg": WEIGHT, "steps": STEPS, "sleep_hours": SLEEP, "resting_hr": RHR, "active_energy_kcal": ENERGY, "exercise_minutes": EXERCISE, "workout_minutes": WORKOUT, "distance_km": DISTANCE, "hrv_ms": HRV}`;
 
+  const lastSyncedAt = useMemo(() => {
+    const stamps = days.map((d) => new Date(d.updated_at).getTime()).filter((t) => !Number.isNaN(t));
+    return stamps.length ? Math.max(...stamps) : null;
+  }, [days]);
+
+  const hoursSince = lastSyncedAt !== null && mounted ? (Date.now() - lastSyncedAt) / 3_600_000 : null;
+  const status: "error" | "loading" | "none" | "stale" | "ok" = isError
+    ? "error"
+    : isLoading
+      ? "loading"
+      : lastSyncedAt === null
+        ? "none"
+        : hoursSince !== null && hoursSince > 36
+          ? "stale"
+          : "ok";
+
+  const relative = (ms: number) => {
+    const h = (Date.now() - ms) / 3_600_000;
+    if (h < 1) return `${Math.max(1, Math.round(h * 60))} min ago`;
+    if (h < 24) return `${Math.round(h)} h ago`;
+    return `${Math.round(h / 24)} d ago`;
+  };
+
+  const statusMeta = {
+    error: {
+      Icon: AlertTriangle,
+      tone: "text-destructive",
+      ring: "border-destructive/40 bg-destructive/10",
+      label: "Sync failed",
+      detail: (error as Error | null)?.message ?? "Could not reach your health data.",
+    },
+    loading: {
+      Icon: RefreshCw,
+      tone: "text-muted-foreground",
+      ring: "border-border/60 bg-card/70",
+      label: "Checking…",
+      detail: "Reading your latest Apple Health data.",
+    },
+    none: {
+      Icon: Smartphone,
+      tone: "text-accent",
+      ring: "border-accent/40 bg-accent/10",
+      label: "Not connected",
+      detail: "No data received yet — set up the iOS Shortcut below.",
+    },
+    stale: {
+      Icon: Clock,
+      tone: "text-accent",
+      ring: "border-accent/40 bg-accent/10",
+      label: "Out of date",
+      detail:
+        lastSyncedAt !== null
+          ? `Last successful sync ${relative(lastSyncedAt)}. Run the Shortcut on your iPhone.`
+          : "",
+    },
+    ok: {
+      Icon: CheckCircle2,
+      tone: "text-primary",
+      ring: "border-primary/40 bg-primary/10",
+      label: "Up to date",
+      detail: lastSyncedAt !== null ? `Last successful sync ${relative(lastSyncedAt)}.` : "",
+    },
+  }[status];
+
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3">
@@ -144,6 +216,39 @@ export function HealthHub() {
         </div>
         <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
           <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} /> Refresh
+        </Button>
+      </div>
+
+      {/* Sync status */}
+      <div className={`flex flex-wrap items-center gap-3 rounded-2xl border p-3.5 ${statusMeta.ring}`}>
+        <statusMeta.Icon
+          className={`h-5 w-5 shrink-0 ${statusMeta.tone} ${status === "loading" || isFetching ? "animate-spin" : ""}`}
+        />
+        <div className="min-w-0 flex-1">
+          <div className={`text-sm font-semibold ${statusMeta.tone}`}>Apple Health sync · {statusMeta.label}</div>
+          <p className="text-xs text-muted-foreground">
+            {statusMeta.detail}
+            {mounted && lastSyncedAt !== null && status !== "loading" && (
+              <>
+                {" "}
+                <span className="text-foreground">
+                  {new Date(lastSyncedAt).toLocaleString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </>
+            )}
+          </p>
+          {mounted && dataUpdatedAt > 0 && (
+            <p className="mt-0.5 text-[11px] text-muted-foreground">Dashboard checked {relative(dataUpdatedAt)}</p>
+          )}
+        </div>
+        <Button size="sm" variant={status === "error" ? "destructive" : "outline"} onClick={() => refetch()} disabled={isFetching}>
+          <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
+          {status === "error" ? "Retry" : "Check now"}
         </Button>
       </div>
 
