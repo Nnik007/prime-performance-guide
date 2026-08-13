@@ -50,7 +50,7 @@ export function RecoveryEssentials() {
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-3">
-        <div className="rounded-lg bg-accent/15 p-2.5">
+        <div className="rounded-xl bg-accent/15 p-2.5">
           <HeartPulse className="h-5 w-5 text-accent" />
         </div>
         <div>
@@ -102,11 +102,11 @@ export function RecoveryPlan() {
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-lg bg-accent/15 p-2.5">
+        <div className="rounded-xl bg-accent/15 p-2.5">
           <HeartPulse className="h-5 w-5 text-accent" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Recovery Plan</h2>
+          <h2 className="font-display text-2xl font-bold tracking-tight">Recovery Plan</h2>
           <p className="text-sm text-muted-foreground">
             5 hard sessions per week is high load. Recovery is the multiplier — treat it like training.
           </p>

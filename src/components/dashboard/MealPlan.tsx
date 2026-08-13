@@ -139,11 +139,11 @@ export function MealPlan() {
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-lg bg-accent/15 p-2.5">
+        <div className="rounded-xl bg-accent/15 p-2.5">
           <Apple className="h-5 w-5 text-accent" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Nutrition Plan</h2>
+          <h2 className="font-display text-2xl font-bold tracking-tight">Nutrition Plan</h2>
           <p className="text-sm text-muted-foreground">
             76.5 kg → 72 kg, 16% → 10–12% BF. Slow, sustainable cut — enough protein and carbs to keep muscle and training intensity.
           </p>

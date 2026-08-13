@@ -114,11 +114,11 @@ export function MindsetBoost() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="rounded-lg bg-primary/15 p-2.5">
+          <div className="rounded-xl bg-primary/15 p-2.5">
             <Brain className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Mindset Shifts</h2>
+            <h2 className="font-display text-2xl font-bold tracking-tight">Mindset Shifts</h2>
             <p className="text-sm text-muted-foreground">
               Six lenses to break through resistance. Pick one that fits today.
             </p>

@@ -182,11 +182,11 @@ export function HabitTracker() {
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-lg bg-primary/15 p-2.5">
+        <div className="rounded-xl bg-primary/15 p-2.5">
           <CheckCircle2 className="h-5 w-5 text-primary" />
         </div>
         <div className="flex-1">
-          <h2 className="text-2xl font-bold tracking-tight">Tracker</h2>
+          <h2 className="font-display text-2xl font-bold tracking-tight">Tracker</h2>
           <p className="text-sm text-muted-foreground">{today}</p>
         </div>
         <Button
