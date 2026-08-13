@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getHealthDays, type HealthDay } from "@/lib/health.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
@@ -52,12 +54,54 @@ function currentWeekKey() {
   return d.toISOString().slice(0, 10);
 }
 
+function weekKeyOf(day: string) {
+  const d = new Date(`${day}T00:00:00Z`);
+  const dow = (d.getUTCDay() + 6) % 7;
+  d.setUTCDate(d.getUTCDate() - dow);
+  return d.toISOString().slice(0, 10);
+}
+
+type WeekRow = { week: string; weight: string; waist: string; synced: boolean };
+
+/** Weekly averages from synced Apple Health days, with manual entries as fallback. */
+function buildWeeks(health: HealthDay[], manual: Measure[]): WeekRow[] {
+  const buckets = new Map<string, { w: number[]; c: number[] }>();
+  for (const d of health) {
+    const k = weekKeyOf(d.day);
+    const b = buckets.get(k) ?? { w: [], c: [] };
+    if (typeof d.weight_kg === "number") b.w.push(d.weight_kg);
+    if (typeof d.waist_cm === "number") b.c.push(d.waist_cm);
+    buckets.set(k, b);
+  }
+  const mean = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+  const keys = new Set<string>([...buckets.keys(), ...manual.map((m) => m.week)]);
+  return [...keys]
+    .map((week) => {
+      const b = buckets.get(week);
+      const m = manual.find((x) => x.week === week);
+      const sw = b ? mean(b.w) : null;
+      const sc = b ? mean(b.c) : null;
+      return {
+        week,
+        weight: sw !== null ? sw.toFixed(1) : (m?.weight ?? ""),
+        waist: sc !== null ? sc.toFixed(1) : (m?.waist ?? ""),
+        synced: sw !== null || sc !== null,
+      };
+    })
+    .sort((a, b) => a.week.localeCompare(b.week));
+}
+
 export function HabitTracker() {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [tipIdx, setTipIdx] = useState(0);
   const [measures, setMeasures] = useState<Measure[]>([]);
   const [weightInput, setWeightInput] = useState("");
   const [waistInput, setWaistInput] = useState("");
+
+  const { data: healthDays = [] } = useQuery({
+    queryKey: ["health-days"],
+    queryFn: () => getHealthDays(),
+  });
 
   useEffect(() => {
     try {
@@ -106,7 +150,9 @@ export function HabitTracker() {
     setWaistInput("");
   };
 
-  const sortedMeasures = [...measures].sort((a, b) => b.week.localeCompare(a.week));
+  const weeks = useMemo(() => buildWeeks(healthDays, measures), [healthDays, measures]);
+  const syncedWeeks = weeks.filter((w) => w.synced).length;
+  const sortedMeasures = [...weeks].sort((a, b) => b.week.localeCompare(a.week));
   const latest = sortedMeasures[0];
   const prev = sortedMeasures[1];
   const weightDelta =
