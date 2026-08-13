@@ -254,13 +254,11 @@ export function HabitTracker() {
           {sortedMeasures.length >= 2 ? (
             <div className="grid gap-4 md:grid-cols-2">
               {(() => {
-                const chartData = [...measures]
-                  .sort((a, b) => a.week.localeCompare(b.week))
-                  .map((m) => ({
+                const chartData = weeks.map((m) => ({
                     week: m.week.slice(5),
                     weight: m.weight ? Number(m.weight) : null,
                     waist: m.waist ? Number(m.waist) : null,
-                  }));
+                }));
                 return (
                   <>
                     <div className="rounded-lg border border-border/60 p-3">
@@ -378,7 +376,10 @@ export function HabitTracker() {
                 <tbody>
                   {sortedMeasures.map((m) => (
                     <tr key={m.week} className="border-t border-border/60">
-                      <td className="px-3 py-2 text-muted-foreground">{m.week}</td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {m.week}
+                        {m.synced && <span className="ml-2 text-[10px] uppercase tracking-wider text-primary">synced</span>}
+                      </td>
                       <td className="px-3 py-2 font-medium">{m.weight || "—"}</td>
                       <td className="px-3 py-2 font-medium">{m.waist || "—"}</td>
                       <td className="px-3 py-2 text-right">
@@ -400,7 +401,9 @@ export function HabitTracker() {
             </div>
           )}
           <p className="text-xs text-muted-foreground">
-            Log once a week — same day, same time (e.g. Monday morning). Trends matter more than daily swings.
+            {syncedWeeks > 0
+              ? "Weight averages fill in automatically from your Apple Health sync. Log waist manually — trends matter more than daily swings."
+              : "Log once a week — same day, same time (e.g. Monday morning). Once the Health sync runs, weight fills in automatically."}
           </p>
         </CardContent>
       </Card>
