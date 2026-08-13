@@ -1,41 +1,30 @@
-Three additions to the dashboard, all frontend + localStorage (no backend needed).
+# Finish the Apple Health redesign
 
-## 1. Grocery List (Meals tab)
+The Health tab, sync endpoint and new visual theme are in place. What's still unfinished from the redesign: the other tabs still look and behave like the old dashboard, and none of them use the synced Health data yet. Plus there's a hydration warning on load from the sync URL being built from `window.location`.
 
-Add a new "Weekly Grocery List" section at the bottom of `MealPlan.tsx`, derived from the meal plan.
+## 1. Tracker becomes health-driven
 
-- Static default list grouped by aisle: **Proteins** (chicken breast, salmon, lean beef, turkey, tofu, Greek yogurt, whey, eggs), **Carbs** (rice, quinoa, sweet potato, pasta, potatoes, rice cakes, bananas), **Produce** (mixed salad greens, seasonal veg, berries, apples, avocado, lemons), **Fats & Extras** (olive oil, nuts, honey, salt), **Hydration** (sparkling water).
-- Each item has a checkbox — checked state persists in localStorage (`forge-grocery`).
-- "Reset list" button to clear checks. "Copy list" button to copy the unchecked (still-needed) items to clipboard for shopping.
-- Small note that it's derived from the current meal plan.
+- Weight and waist stop being manual-only: weekly averages are computed from the synced Health days, with manual entry kept as a fallback for waist (Apple Health rarely has it).
+- Weight/waist charts read the same synced series, so the trend fills in automatically each day.
+- Keep the habit checklist as-is, restyled to the new bento/card look.
 
-## 2. Workout Logging (Workout tab)
+## 2. Today panel gets live body data
 
-Extend `WorkoutPlan.tsx` so each exercise block becomes loggable.
+- Add a top row of live metrics (weight, steps, sleep, resting HR) pulled from the latest synced day, next to today's training, meal and recovery actions.
+- Show a subtle "synced <date>" line, or a prompt to set up the Shortcut when no data exists.
 
-- Under each exercise, add a compact "Log" row (expand/collapse via a small button to keep the card clean):
-  - Dropdown selecting the exercise variant used (the main exercise + its listed alternatives).
-  - Three inputs: **Sets**, **Reps**, **Weight (kg)**.
-  - "Save" button stores an entry keyed by `{weekStart, day, exerciseName}` in localStorage (`forge-workout-log`).
-- Show the last-logged entry inline beneath the row (e.g., "Last: Incline Barbell Press · 4×8 @ 40 kg — Mon 20 Jul") so progression is visible.
-- A "History" toggle at the top of each day card reveals all past entries for that day's exercises.
-- No changes to the exercise data itself.
+## 3. Visual pass on Training, Running, Meals, Tracker, Mindset
 
-## 3. Progress Charts (Tracker tab)
+- Apply the Ink + Electric Blue tokens, Space Grotesk headings and rounded bento cards consistently: same card radius, uppercase micro-labels, tighter spacing as the Health tab.
+- No changes to plan content, logging logic or progression rules.
 
-Add charts to `HabitTracker.tsx` using the already-installed `recharts` (via shadcn `chart` component if present, otherwise plain `recharts`).
+## 4. Fix the load-time hydration warning
 
-- Below the "Latest weight / Latest waist" cards and above the weekly log table, add two line charts side-by-side (stack on mobile):
-  - **Weight over time** (kg) — X: week, Y: weight, primary color line.
-  - **Waist over time** (cm) — X: week, Y: waist, accent color line.
-- Both include a subtle horizontal target line for weight (72 kg) on the weight chart.
-- Empty state when fewer than 2 data points: "Log at least 2 weeks to see the trend."
-- Data source: existing `forge-measures` localStorage; no schema change.
+- Build the sync endpoint URL after mount instead of during render so the server and browser render the same text.
 
 ## Technical details
 
-- New file: `src/components/dashboard/GroceryList.tsx`, rendered inside `MealPlan.tsx`.
-- Edits: `WorkoutPlan.tsx` (add logging UI + localStorage helpers), `HabitTracker.tsx` (add recharts line charts).
-- Verify `recharts` is in `package.json`; if missing, install it before adding the charts.
-- All persistence via localStorage — no Cloud/DB, matches existing pattern.
-- No route or navigation changes.
+- `HabitTracker.tsx` and `TodaySummary.tsx` read `getHealthDays()` through the existing React Query keys; no new tables or endpoints.
+- Weekly average = mean of non-null values per ISO week from `health_days`; manual `forge-measures` entries stay as a fallback and are merged when the synced value is missing.
+- `HealthHub.tsx`: move `endpoint` into state set in `useEffect` (fixes the hydration mismatch).
+- Styling only for the remaining tabs — no changes to workout/meal/run data structures.
