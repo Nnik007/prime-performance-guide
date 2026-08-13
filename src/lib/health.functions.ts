@@ -26,7 +26,7 @@ export const getHealthDays = createServerFn({ method: "GET" }).handler(async ():
     .gte("day", since)
     .order("day", { ascending: true });
 
-  if (error) return [];
+  if (error) throw new Error(error.message);
   return data ?? [];
 });
 
