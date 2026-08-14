@@ -20,16 +20,30 @@ export const Route = createFileRoute("/api/public/health-sync")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected = process.env["HEALTH_SYNC_TOKEN"];
-        const provided =
-          request.headers.get("x-health-token") ??
-          request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
-          "";
-        if (!expected || provided !== expected) {
-          return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        const expected = (process.env["HEALTH_SYNC_TOKEN"] ?? "").trim();
+        const url = new URL(request.url);
+        const candidates = [
+          request.headers.get("x-health-token"),
+          request.headers.get("X-Health-Token"),
+          request.headers.get("x-health-sync-token"),
+          request.headers.get("authorization")?.replace(/^Bearer\s+/i, ""),
+          url.searchParams.get("token"),
+        ]
+          .map((v) => (v ?? "").trim().replace(/^["']|["']$/g, ""))
+          .filter((v) => v.length > 0);
+
+        const matched = expected.length > 0 && candidates.some((v) => v === expected);
+        if (!matched) {
+          return new Response(
+            JSON.stringify({
+              error: "Unauthorized",
+              reason: expected.length === 0 ? "server_token_not_configured" : candidates.length === 0 ? "no_token_provided" : "token_mismatch",
+            }),
+            {
             status: 401,
             headers: { "Content-Type": "application/json" },
-          });
+          },
+          );
         }
 
         let raw: unknown;
