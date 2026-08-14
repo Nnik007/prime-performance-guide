@@ -41,13 +41,6 @@ export type Day = {
 export const week: Day[] = [
   {
     day: "Monday",
-    focus: "Football",
-    type: "football",
-    duration: "",
-    blocks: [],
-  },
-  {
-    day: "Tuesday",
     focus: "Hybrid — Upper Strength + Zone 2",
     type: "gym",
     duration: "75–85 min",
@@ -70,6 +63,13 @@ export const week: Day[] = [
         rpe: "RPE 3–4 / 10",
       },
     },
+  },
+  {
+    day: "Tuesday",
+    focus: "Football",
+    type: "football",
+    duration: "",
+    blocks: [],
   },
   {
     day: "Wednesday",
