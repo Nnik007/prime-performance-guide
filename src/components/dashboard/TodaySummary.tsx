@@ -13,6 +13,9 @@ export function TodaySummary() {
   const { data: healthDays = [] } = useQuery({
     queryKey: ["health-days"],
     queryFn: () => getHealthDays(),
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
   const latest = healthDays[healthDays.length - 1];
   const metrics = [
