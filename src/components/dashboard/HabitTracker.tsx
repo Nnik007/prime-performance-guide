@@ -101,6 +101,9 @@ export function HabitTracker() {
   const { data: healthDays = [] } = useQuery({
     queryKey: ["health-days"],
     queryFn: () => getHealthDays(),
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {
