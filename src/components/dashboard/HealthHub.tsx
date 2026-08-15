@@ -85,6 +85,13 @@ export function HealthHub() {
     queryKey: ["health-days"],
     queryFn: () => getHealthDays(),
     retry: 1,
+    // A sync can land at any time; never serve a stale cached snapshot.
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 60_000,
   });
 
   const setup = useQuery({
